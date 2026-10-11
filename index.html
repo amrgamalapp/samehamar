@@ -1,0 +1,2618 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f6f8">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="مكتب سامح عمار">
+  <link rel="apple-touch-icon" href="./icon-192.svg">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <title>مكتب سامح عمار للمحاماة | إدارة المكتب</title>
+  <script>
+    try {
+      const savedTheme = localStorage.getItem("sameh-theme");
+      const initialTheme = savedTheme === "light" || savedTheme === "dark"
+        ? savedTheme
+        : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.dataset.theme = initialTheme;
+    } catch (error) {
+      console.warn("تعذر تحميل تفضيل المظهر المحفوظ.", error);
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --surface: #fff;
+      --surface-soft: #fcfcfd;
+      --surface-muted: #f5f7f8;
+      --table-hover: #fbfcfc;
+      --ink: #172b3b;
+      --muted: #84909b;
+      --line: #e9edf0;
+      --paper: #fff;
+      --canvas: #f5f6f8;
+      --navy: #17384c;
+      --teal: #198c7b;
+      --teal-soft: #e6f4f0;
+      --amber: #b87b22;
+      --amber-soft: #fbf2e3;
+      --rose: #b84d59;
+      --rose-soft: #faeaec;
+      --shadow: 0 8px 24px rgba(31, 51, 66, .045);
+    }
+
+    * { box-sizing: border-box; }
+    html { color-scheme: light; }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --surface: #17232d;
+      --surface-soft: #1b2934;
+      --surface-muted: #202f3a;
+      --table-hover: #20313c;
+      --ink: #e7edf1;
+      --muted: #a2b0ba;
+      --line: #31414c;
+      --paper: #17232d;
+      --canvas: #111b23;
+      --navy: #6ba5bd;
+      --teal: #59c5a8;
+      --teal-soft: #173e38;
+      --amber: #e2b96f;
+      --amber-soft: #44351f;
+      --rose: #ed8790;
+      --rose-soft: #47272c;
+      --shadow: 0 8px 24px rgba(0, 0, 0, .16);
+    }
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: Tahoma, "Segoe UI Variable", "Segoe UI", Arial, sans-serif;
+      font-size: 15px;
+      min-height: 100vh;
+      line-height: 1.65;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    html[data-theme="dark"] .sidebar,
+    html[data-theme="dark"] .topbar,
+    html[data-theme="dark"] .panel,
+    html[data-theme="dark"] .stat-card,
+    html[data-theme="dark"] .client-card,
+    html[data-theme="dark"] .client-profile,
+    html[data-theme="dark"] .modal,
+    html[data-theme="dark"] .auth-card,
+    html[data-theme="dark"] .icon-button,
+    html[data-theme="dark"] .filter-select,
+    html[data-theme="dark"] .search,
+    html[data-theme="dark"] .field input,
+    html[data-theme="dark"] .field select,
+    html[data-theme="dark"] .field textarea,
+    html[data-theme="dark"] .secondary-button,
+    html[data-theme="dark"] .document-action,
+    html[data-theme="dark"] .reminder-settings {
+      background: var(--surface);
+      color: var(--ink);
+      border-color: var(--line);
+    }
+    html[data-theme="dark"] .nav-link.active,
+    html[data-theme="dark"] .office-card,
+    html[data-theme="dark"] .client-avatar {
+      background: var(--surface-muted);
+      color: var(--ink);
+    }
+    html[data-theme="dark"] .nav-link,
+    html[data-theme="dark"] .text-button { color: #b4c4cd; }
+    html[data-theme="dark"] .nav-link:hover,
+    html[data-theme="dark"] tbody tr:hover { background: var(--table-hover); }
+    html[data-theme="dark"] th,
+    html[data-theme="dark"] .client-info-grid { background: var(--surface-soft); }
+    html[data-theme="dark"] td { color: #c2cdd4; }
+    html[data-theme="dark"] .case-title,
+    html[data-theme="dark"] .panel-title,
+    html[data-theme="dark"] .brand-name,
+    html[data-theme="dark"] .office-card-title,
+    html[data-theme="dark"] .activity-title,
+    html[data-theme="dark"] .task-copy,
+    html[data-theme="dark"] .client-card-name,
+    html[data-theme="dark"] .document-name,
+    html[data-theme="dark"] .client-profile-head h2,
+    html[data-theme="dark"] .client-section-head h3,
+    html[data-theme="dark"] .field label,
+    html[data-theme="dark"] .auth-card h1 { color: var(--ink); }
+    html[data-theme="dark"] .panel-head,
+    html[data-theme="dark"] .activity,
+    html[data-theme="dark"] .task,
+    html[data-theme="dark"] .client-card-foot,
+    html[data-theme="dark"] .client-profile-head,
+    html[data-theme="dark"] .client-case-row,
+    html[data-theme="dark"] .document-row,
+    html[data-theme="dark"] .profile,
+    html[data-theme="dark"] .auth-note { border-color: var(--line); }
+    html[data-theme="dark"] .stat-icon.blue { background: #23394a; color: #95bed3; }
+    html[data-theme="dark"] .stat-icon.green { background: var(--teal-soft); color: var(--teal); }
+    html[data-theme="dark"] .stat-icon.gold { background: var(--amber-soft); color: var(--amber); }
+    html[data-theme="dark"] .stat-icon.red { background: var(--rose-soft); color: var(--rose); }
+    html[data-theme="dark"] .close-modal { background: var(--surface-muted); color: var(--ink); }
+    html[data-theme="dark"] .auth-screen { background: radial-gradient(ellipse at top, #1b2a35, #111b23 62%); }
+    html[data-theme="dark"] .auth-error { background: var(--rose-soft); color: var(--rose); }
+    html[data-theme="dark"] .document-icon { background: #47272c; color: #f0a4ab; }
+    html[data-theme="dark"] .secondary-button:hover,
+    html[data-theme="dark"] .document-action:hover { background: var(--table-hover); }
+    html[data-theme="dark"] .primary-button { background: #28566b; color: #fff; }
+    html[data-theme="dark"] .primary-button:hover { background: #326b82; }
+    html[data-theme="dark"] .stat-top,
+    html[data-theme="dark"] .stat-foot,
+    html[data-theme="dark"] .case-client,
+    html[data-theme="dark"] .case-id,
+    html[data-theme="dark"] .client-card-foot,
+    html[data-theme="dark"] .upload-note,
+    html[data-theme="dark"] .auth-note,
+    html[data-theme="dark"] .page-note,
+    html[data-theme="dark"] .today,
+    html[data-theme="dark"] .nav-count { color: var(--muted); }
+    html[data-theme="dark"] .client-info-grid,
+    html[data-theme="dark"] .reminder-settings,
+    html[data-theme="dark"] .secondary-button { background: var(--surface-muted); }
+    html[data-theme="dark"] .activity,
+    html[data-theme="dark"] .task,
+    html[data-theme="dark"] .client-card-foot,
+    html[data-theme="dark"] .client-case-row,
+    html[data-theme="dark"] .document-row { border-color: var(--line); }
+    html[data-theme="dark"] .status-closed { color: #c0c8ce; background: #34414a; }
+    html[data-theme="dark"] .stat-icon.blue,
+    html[data-theme="dark"] .activity-icon { background: var(--surface-muted); color: #a9c9d8; }
+    html[data-theme="dark"] .notification-dot { border-color: var(--surface); }
+    html[data-theme="dark"] .attachment-category,
+    html[data-theme="dark"] .attachment-remove { background: var(--surface); color: var(--ink); border-color: var(--line); }
+    html[data-theme="dark"] .attachment-item { background: var(--surface-soft); }
+    .theme-toggle { font-size: 18px; line-height: 1; }
+    .privacy-notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      padding: 7px 10px;
+      margin: 0 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--amber-soft);
+      color: var(--ink);
+    }
+    .privacy-notice-icon { flex: 0 0 auto; font-size: 13px; line-height: 1.6; }
+    .privacy-notice p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.7; }
+    .install-help { margin: 8px 0 0; color: var(--muted); font-size: 12px; line-height: 1.8; }
+    .attachment-queue { display: grid; gap: 8px; margin-top: 9px; }
+    .attachment-item { display: grid; grid-template-columns: minmax(0, 1fr) minmax(145px, .55fr) auto; align-items: center; gap: 9px; padding: 9px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-soft); }
+    .attachment-name { min-width: 0; overflow-wrap: anywhere; color: var(--ink); font-size: 12px; font-weight: 700; }
+    .attachment-size { display: block; color: var(--muted); font-size: 11px; font-weight: 400; }
+    .attachment-category { width: 100%; min-width: 0; padding: 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: var(--ink); }
+    .attachment-remove { width: 32px; height: 32px; border: 1px solid var(--line); border-radius: 7px; color: var(--rose); background: var(--surface); }
+    .document-category { display: inline-block; color: var(--teal); font-size: 11px; font-weight: 700; margin-top: 2px; }
+    .upload-note { font-size: 11px; line-height: 1.8; }
+    .field label { font-size: 12px; }
+    .field input, .field select, .field textarea { font-size: 13px; }
+    .search { font-size: 12px; }
+    .filter-select { font-size: 12px; }
+    .panel-title { font-size: 15px; }
+    .panel-caption, .subtitle, .breadcrumbs, .nav-link { font-size: 13px; }
+    .stat-top, .stat-foot, .activity-meta, .task-date, .client-card-meta, .client-card-foot, .document-meta { font-size: 11px; }
+    th { font-size: 12px; }
+    td { font-size: 13px; }
+    .case-title, .activity-title, .task-copy { font-size: 13px; }
+    .client-card-name, .document-name { font-size: 13px; }
+    .page-note { font-size: 11px; }
+    :focus-visible { outline: 3px solid rgba(25, 140, 123, .45); outline-offset: 2px; }
+    .app { min-height: 100vh; }
+    .sidebar {
+      width: 246px;
+      position: fixed;
+      z-index: 3;
+      inset: 0 0 0 auto;
+      background: var(--surface);
+      border-left: 1px solid var(--line);
+      padding: 27px 18px 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; padding: 0 8px 29px; }
+    .brand-mark {
+      width: 43px; height: 43px; border-radius: 13px;
+      display: grid; place-items: center; color: #fff;
+      background: var(--navy); font-size: 21px; font-weight: 700;
+    }
+    .brand-mark img { display: block; width: 100%; height: 100%; border-radius: inherit; }
+    .brand-name { font-size: 15px; font-weight: 800; line-height: 1.5; }
+    .brand-sub { color: var(--muted); font-size: 11px; }
+    .nav-label { color: #a1aab2; font-size: 11px; font-weight: 700; padding: 8px 12px 10px; }
+    .nav { display: grid; gap: 5px; }
+    .nav-link {
+      display: flex; align-items: center; gap: 12px; width: 100%;
+      text-align: right; border: 0; border-radius: 10px; background: transparent;
+      color: #687784; padding: 11px 12px; font-size: 13px; transition: .18s;
+    }
+    .nav-link:hover { background: #f6f8f9; color: var(--ink); }
+    .nav-link.active { color: var(--navy); background: #edf3f5; font-weight: 700; }
+    .nav-icon { width: 20px; height: 20px; display: inline-grid; place-items: center; font-size: 17px; }
+    .nav-count { margin-right: auto; color: #8a959f; font-size: 11px; }
+    .sidebar-bottom { margin-top: auto; }
+    .office-card { background: #f5f7f8; padding: 14px; border-radius: 12px; }
+    .office-card-title { font-size: 12px; font-weight: 700; }
+    .office-card p { margin: 4px 0 0; color: var(--muted); font-size: 11px; line-height: 1.8; }
+    .profile { margin-top: 17px; padding: 15px 6px 0; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 10px; }
+    .avatar { width: 37px; height: 37px; border-radius: 50%; display: grid; place-items: center; background: #e8e4db; color: #685b48; font-weight: 800; }
+    .profile-name { font-weight: 700; font-size: 12px; }
+    .profile-role { font-size: 10px; color: var(--muted); }
+
+    .main { margin-right: 246px; min-height: 100vh; }
+    .topbar {
+      min-height: 74px; background: var(--surface); border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 36px;
+      position: sticky; top: 0; z-index: 2;
+    }
+    .breadcrumbs { color: var(--muted); font-size: 12px; }
+    .breadcrumbs strong { color: var(--ink); font-weight: 700; }
+    .top-actions { display: flex; align-items: center; gap: 12px; }
+    .today { color: #7d8993; font-size: 11px; }
+    .icon-button { width: 38px; height: 38px; border: 1px solid var(--line); background: var(--surface); border-radius: 10px; color: #526474; transition: .18s; }
+    .icon-button:hover { border-color: #b6c6cc; background: var(--surface-muted); }
+    .mobile-brand, .menu-toggle { display: none; }
+    .content { max-width: 1440px; margin: auto; padding: 30px 36px 48px; }
+    .welcome { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 24px; }
+    h1 { margin: 0; font-size: 23px; line-height: 1.55; font-weight: 800; letter-spacing: -.3px; }
+    .subtitle { margin-top: 3px; color: var(--muted); font-size: 12px; }
+    .primary-button {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      background: var(--navy); color: #fff; border: 0; border-radius: 9px;
+      padding: 10px 15px; font-size: 12px; font-weight: 700; transition: .18s;
+    }
+    .primary-button:hover { background: #214e69; transform: translateY(-1px); }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 15px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--line); border-radius: 13px; padding: 17px 18px; box-shadow: var(--shadow); }
+    .stat-top { display: flex; justify-content: space-between; align-items: center; color: #798692; font-size: 11px; font-weight: 600; }
+    .stat-icon { height: 33px; width: 33px; display: grid; place-items: center; border-radius: 10px; font-size: 16px; }
+    .stat-icon.blue { background: #edf3f8; color: #406784; }
+    .stat-icon.green { background: var(--teal-soft); color: var(--teal); }
+    .stat-icon.gold { background: var(--amber-soft); color: var(--amber); }
+    .stat-icon.red { background: var(--rose-soft); color: var(--rose); }
+    .stat-value { font-family: "DM Sans", "Cairo", sans-serif; font-size: 27px; font-weight: 700; margin-top: 9px; line-height: 1.2; }
+    .stat-foot { color: #9aa3aa; font-size: 10px; margin-top: 5px; }
+    .stat-foot .positive { color: var(--teal); font-weight: 700; }
+    .section-grid { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(270px, .9fr); gap: 17px; margin-top: 20px; align-items: start; }
+    .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 13px; box-shadow: var(--shadow); overflow: hidden; }
+    .panel-head { padding: 17px 19px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); }
+    .panel-title { font-size: 14px; font-weight: 800; }
+    .panel-caption { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .text-button { border: 0; color: #3f6577; background: transparent; padding: 6px; font-size: 12px; font-weight: 700; }
+    .filter-row { display: flex; align-items: center; gap: 9px; }
+    .search-wrap { position: relative; }
+    .search-wrap span { position: absolute; top: 7px; right: 10px; color: #9aa5ad; }
+    .search { width: 160px; border: 1px solid var(--line); border-radius: 8px; outline: 0; padding: 8px 30px 8px 10px; font-size: 11px; color: var(--ink); background: var(--surface); }
+    .search:focus, .field input:focus, .field select:focus, .field textarea:focus { border-color: #7fa5ac; box-shadow: 0 0 0 3px rgba(25,140,123,.08); }
+    .filter-select { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: 11px; color: #526474; background: var(--surface); outline: 0; }
+    .table-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+    th { text-align: right; color: #7c8993; font-size: 11px; font-weight: 700; padding: 12px 17px; background: var(--surface-soft); }
+    td { padding: 13px 17px; border-top: 1px solid var(--line); color: #596a78; font-size: 12px; }
+    tbody tr:hover { background: var(--table-hover); }
+    .case-id { font-family: "DM Sans", sans-serif; color: #71818e; font-size: 10px; }
+    .case-title { display: block; color: var(--ink); font-size: 12px; font-weight: 700; }
+    .case-client { display: block; color: #7c8993; font-size: 10px; margin-top: 2px; }
+    .status { display: inline-flex; align-items: center; gap: 5px; border-radius: 20px; padding: 5px 10px; font-size: 11px; font-weight: 700; }
+    .status::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .status-active { color: var(--teal); background: var(--teal-soft); }
+    .status-pending { color: var(--amber); background: var(--amber-soft); }
+    .status-closed { color: #777f87; background: #eff1f2; }
+    .empty-state { padding: 32px 12px; text-align: center; color: var(--muted); font-size: 11px; }
+    .empty-state strong { display: block; color: var(--ink); font-size: 12px; margin-bottom: 5px; }
+    .activity-list { padding: 3px 18px 7px; }
+    .activity { display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #f0f2f4; }
+    .activity:last-child { border-bottom: 0; }
+    .activity-icon { width: 31px; height: 31px; border-radius: 9px; flex: 0 0 31px; display: grid; place-items: center; background: #edf3f5; font-size: 14px; }
+    .activity-body { min-width: 0; }
+    .activity-title { font-size: 12px; font-weight: 700; line-height: 1.7; }
+    .activity-meta { color: #7e8b95; font-size: 10px; margin-top: 3px; line-height: 1.8; }
+    .page-view[hidden] { display: none; }
+    .calendar-toolbar, .report-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .calendar-month-controls, .report-actions { display: flex; align-items: center; gap: 8px; }
+    .calendar-month-title { min-width: 150px; text-align: center; font-size: 14px; font-weight: 800; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; padding: 14px; }
+    .calendar-weekday { padding: 5px 2px; color: var(--muted); text-align: center; font-size: 10px; font-weight: 700; }
+    .calendar-day { min-height: 65px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 8px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 9px; text-align: right; }
+    .calendar-day:hover, .calendar-day.selected { border-color: var(--teal); background: var(--teal-soft); }
+    .calendar-day.outside { opacity: .42; }
+    .calendar-day.today .calendar-day-number { color: var(--teal); font-weight: 800; }
+    .calendar-day-number { font-size: 12px; }
+    .calendar-day-count { color: var(--amber); font-size: 9px; font-weight: 700; }
+    .calendar-day-list { padding: 0 17px 14px; }
+    .calendar-day-list h3 { margin: 0 0 8px; font-size: 13px; }
+    .calendar-empty { color: var(--muted); font-size: 11px; padding: 12px 0; }
+    .global-search-box { padding: 15px; }
+    .global-search-box .search { width: 100%; font-size: 13px; padding-top: 11px; padding-bottom: 11px; }
+    .global-search-results { display: grid; gap: 8px; padding: 0 15px 15px; }
+    .global-result { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 9px; color: var(--ink); background: var(--surface); text-align: right; }
+    .global-result:hover { background: var(--table-hover); border-color: var(--teal); }
+    .global-result strong { display: block; font-size: 12px; }
+    .global-result small { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; }
+    .result-kind { flex: 0 0 auto; color: var(--teal); font-size: 10px; font-weight: 700; }
+    .report-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 15px 0; }
+    .report-summary .stat-card { box-shadow: none; }
+    .report-table-wrap { overflow-x: auto; }
+    .report-table { min-width: 700px; }
+    @media print {
+      body { background: #fff !important; color: #000 !important; }
+      body * { visibility: hidden !important; }
+      #reportsView, #reportsView * { visibility: visible !important; }
+      #reportsView { display: block !important; position: absolute; inset: 0; width: 100%; margin: 0; padding: 0; }
+      #reportsView .report-actions, #reportsView .report-print-hide { display: none !important; }
+      #reportsView .panel, #reportsView .stat-card { box-shadow: none; border-color: #bbb; break-inside: avoid; }
+      #reportsView th, #reportsView td { color: #000 !important; background: #fff !important; }
+      body.printing-template #reportsView, body.printing-template #reportsView * { visibility: hidden !important; }
+      body.printing-template #templatesView, body.printing-template #templatesView * { visibility: visible !important; }
+      body.printing-template #templatesView { display: block !important; position: absolute; inset: 0; width: 100%; margin: 0; padding: 0; }
+      body.printing-template #templatesView > :not(.panel-spaced) { display: none !important; }
+      body.printing-template #templatesView .panel-spaced { border: 0; box-shadow: none; }
+      body.printing-template #templatesView .panel-spaced .panel-head,
+      body.printing-template #templatesView .panel-spaced .panel-caption { display: none !important; }
+      body.printing-template #templatePreview { border: 0; padding: 0; color: #000; }
+    }
+    .tasks-panel { margin-top: 17px; }
+    .task-list { padding: 3px 18px 9px; }
+    .task { display: flex; align-items: flex-start; gap: 10px; padding: 11px 0; border-bottom: 1px solid #f0f2f4; }
+    .task:last-child { border: 0; }
+    .task input { margin: 4px 0 0; accent-color: var(--teal); }
+    .task-copy { flex: 1; font-size: 12px; font-weight: 600; line-height: 1.7; }
+    .task-copy.done { text-decoration: line-through; color: #a5adb3; }
+    .task-date { display: block; color: #7e8b95; font-size: 10px; font-weight: 400; }
+    .task-late { color: var(--rose); }
+    .clients-view { margin-top: 5px; }
+    .clients-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 17px; }
+    .clients-toolbar h2, .client-profile-head h2 { margin: 0; font-size: 17px; }
+    .clients-toolbar p, .client-profile-head p { margin: 3px 0 0; color: var(--muted); font-size: 11px; }
+    .client-search { width: 220px; }
+    .client-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .client-card { border: 1px solid var(--line); border-radius: 13px; background: var(--surface); box-shadow: var(--shadow); text-align: right; padding: 16px; color: var(--ink); transition: .18s; }
+    .client-card:hover { border-color: #b9cbd0; transform: translateY(-2px); }
+    .client-card-top { display: flex; align-items: center; gap: 10px; }
+    .client-avatar { width: 41px; height: 41px; border-radius: 12px; display: grid; place-items: center; background: #edf3f5; color: var(--navy); font-weight: 800; }
+    .client-card-name { font-size: 12px; font-weight: 800; }
+    .client-card-meta { color: var(--muted); font-size: 10px; margin-top: 2px; }
+    .client-card-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 12px; border-top: 1px solid #f0f2f4; color: #7f8c96; font-size: 10px; }
+    .client-profile { background: var(--surface); border: 1px solid var(--line); border-radius: 13px; box-shadow: var(--shadow); overflow: hidden; }
+    .client-profile-head { display: flex; align-items: center; gap: 13px; padding: 19px; border-bottom: 1px solid var(--line); }
+    .client-profile-head .client-avatar { width: 49px; height: 49px; font-size: 16px; }
+    .client-back { margin-right: auto; }
+    .client-info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 16px 19px; background: var(--surface-soft); border-bottom: 1px solid var(--line); }
+    .client-info-label { color: var(--muted); font-size: 10px; }
+    .client-info-value { font-size: 12px; font-weight: 600; margin-top: 3px; overflow-wrap: anywhere; }
+    .client-notes { grid-column: 1 / -1; }
+    .client-profile-section { padding: 17px 19px; }
+    .client-section-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .client-section-head h3 { margin: 0; font-size: 12px; }
+    .client-section-head p { margin: 3px 0 0; font-size: 10px; color: var(--muted); }
+    .upload-button { display: inline-flex; align-items: center; gap: 7px; }
+    .document-list { margin-top: 14px; }
+    .document-row { display: flex; align-items: center; gap: 10px; padding: 11px 0; border-top: 1px solid #f0f2f4; }
+    .document-icon { width: 33px; height: 33px; border-radius: 9px; background: #f5eeee; color: #a4515a; display: grid; place-items: center; font-size: 10px; font-weight: 800; }
+    .document-copy { flex: 1; min-width: 0; }
+    .document-name { font-size: 10px; font-weight: 700; overflow-wrap: anywhere; }
+    .document-meta { color: var(--muted); font-size: 10px; margin-top: 2px; }
+    .document-actions { display: flex; gap: 5px; }
+    .document-action { border: 1px solid var(--line); background: var(--surface); border-radius: 7px; color: #587080; padding: 6px 9px; font-size: 10px; }
+    .document-action.delete { color: var(--rose); }
+    .upload-note { margin: 10px 0 0; color: #929ca4; font-size: 10px; line-height: 1.8; }
+    .auth-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: radial-gradient(ellipse at top, #eaf0f2, #f5f6f8 62%); }
+    .auth-card { position: relative; width: min(100%, 420px); background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 30px; box-shadow: 0 18px 55px rgba(31,51,66,.09); }
+    .auth-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 27px; padding-left: 44px; }
+    .auth-theme { position: absolute; top: 22px; left: 22px; }
+    .auth-card h1 { font-size: 21px; }
+    .auth-card > p { color: var(--muted); font-size: 11px; line-height: 1.8; margin: 6px 0 22px; }
+    .auth-form { display: grid; gap: 14px; }
+    .auth-form .field input { padding: 11px; font-size: 12px; }
+    .auth-form .primary-button { width: 100%; margin-top: 4px; }
+    .auth-error { border-radius: 8px; background: var(--rose-soft); color: var(--rose); padding: 9px 11px; font-size: 10px; line-height: 1.7; }
+    .auth-error:empty { display: none; }
+    .auth-note { margin-top: 17px; border-top: 1px solid var(--line); padding-top: 13px; color: #8a959f; font-size: 10px; line-height: 1.8; }
+    .app-attribution { margin-top: 22px; padding: 13px 10px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; line-height: 1.9; text-align: center; }
+    .app-attribution strong { color: var(--ink); font-weight: 700; }
+    .case-timeline { display: grid; gap: 12px; padding: 18px; }
+    .timeline-entry { position: relative; padding: 14px 17px; border: 1px solid var(--line); border-right: 3px solid var(--teal); border-radius: 10px; background: var(--surface-soft); }
+    .timeline-entry h3, .timeline-entry p { margin: 0; }
+    .timeline-entry h3 { font-size: 13px; }
+    .timeline-entry p { margin-top: 7px; color: var(--muted); font-size: 12px; white-space: pre-wrap; }
+    .timeline-meta { color: var(--muted); font-size: 11px; }
+    .feature-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+    .feature-toolbar h2 { margin: 0; font-size: 19px; }
+    .feature-toolbar p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+    .finance-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .case-finance-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .finance-item { padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+    .finance-label { color: var(--muted); font-size: 11px; }
+    .finance-value { margin-top: 4px; color: var(--ink); font-size: 19px; font-weight: 800; }
+    .feature-table-wrap { overflow-x: auto; }
+    .panel-spaced { margin-top: 16px; }
+    .feature-table { width: 100%; border-collapse: collapse; min-width: 660px; }
+    .feature-table th, .feature-table td { padding: 11px; text-align: right; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .document-search-form { display: flex; gap: 9px; padding: 17px; }
+    .document-search-form input { flex: 1; min-width: 0; }
+    .document-search-note { padding: 0 17px 14px; color: var(--muted); font-size: 11px; line-height: 1.8; }
+    .template-preview { padding: 20px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); white-space: pre-wrap; line-height: 2; }
+    .case-detail-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .case-open-actions { display: flex; gap: 6px; }
+    .auth-progress { color: var(--muted); font-size: 10px; margin-top: 10px; min-height: 18px; }
+    .bell-button { position: relative; }
+    .notification-dot { display: none; position: absolute; top: 6px; left: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--rose); border: 1px solid #fff; }
+    .notification-dot.visible { display: block; }
+    .reminder-settings { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 14px; margin: 13px 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+    .reminder-settings p { margin: 0; color: var(--muted); font-size: 10px; }
+    .reminder-settings .primary-button { padding: 7px 10px; font-size: 10px; white-space: nowrap; }
+    .app[hidden], .auth-screen[hidden] { display: none; }
+    .client-case-row { border-top: 1px solid #f0f2f4; padding: 10px 0; display: flex; justify-content: space-between; gap: 10px; font-size: 11px; }
+    .client-case-row span:last-child { color: var(--muted); }
+    .client-view[hidden], #dashboardView[hidden], .client-profile[hidden] { display: none; }
+    .modal-backdrop { position: fixed; inset: 0; z-index: 5; background: rgba(16,34,46,.42); display: none; align-items: center; justify-content: center; padding: 18px; }
+    .modal-backdrop.open { display: flex; }
+    .modal { width: min(100%, 510px); max-height: min(90vh, 700px); overflow-y: auto; background: var(--surface); color: var(--ink); border-radius: 16px; box-shadow: 0 24px 80px rgba(16,34,46,.2); }
+    .modal-head { padding: 20px 22px 15px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: flex-start; }
+    .modal-head h2 { margin: 0; font-size: 17px; }
+    .modal-head p { color: var(--muted); font-size: 10px; margin: 3px 0 0; }
+    .close-modal { width: 31px; height: 31px; border: 0; border-radius: 8px; background: #f3f5f6; color: #64727d; font-size: 17px; }
+    .form { padding: 18px 22px 22px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { font-size: 11px; font-weight: 700; color: #516270; }
+    .field input, .field select, .field textarea { border: 1px solid #e3e8eb; border-radius: 8px; padding: 10px 11px; background: var(--surface); outline: 0; color: var(--ink); font-size: 12px; }
+    .field textarea { min-height: 68px; resize: vertical; }
+    .form-actions { display: flex; justify-content: flex-start; gap: 8px; margin-top: 18px; }
+    .secondary-button { border: 1px solid var(--line); background: #fff; color: #65737f; border-radius: 9px; padding: 9px 15px; font-size: 11px; }
+    .toast { position: fixed; z-index: 7; bottom: 22px; right: 50%; transform: translate(50%, 12px); padding: 11px 17px; border-radius: 10px; background: #193e4e; color: #fff; box-shadow: var(--shadow); font-size: 11px; opacity: 0; pointer-events: none; transition: .22s; }
+    .toast.show { opacity: 1; transform: translate(50%, 0); }
+    .page-note { margin-top: 15px; color: #a1aab1; font-size: 9px; text-align: center; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
+
+    @media (max-width: 1100px) {
+      .content { padding-left: 24px; padding-right: 24px; }
+      .topbar { padding: 0 24px; }
+      .section-grid { grid-template-columns: minmax(0, 1.4fr) minmax(250px, .9fr); }
+      .stats { gap: 10px; }
+      .stat-card { padding: 14px; }
+      th, td { padding-left: 12px; padding-right: 12px; }
+    }
+    @media (max-width: 820px) {
+      .sidebar { transform: translateX(100%); transition: transform .22s; box-shadow: -10px 0 30px rgba(20,40,55,.08); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-right: 0; }
+      .menu-toggle { display: inline-grid; place-items: center; }
+      .section-grid { grid-template-columns: 1fr; }
+      .activity-panel { order: 2; }
+      .cases-panel { order: 1; }
+      .client-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 580px) {
+      .topbar { min-height: 62px; padding: 0 16px; }
+      .content { padding: 23px 15px 34px; }
+      .today { display: none; }
+      .top-actions { gap: 8px; }
+      .mobile-brand { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 800; }
+      .mobile-brand .brand-mark { width: 32px; height: 32px; font-size: 16px; border-radius: 9px; }
+      .breadcrumbs { display: none; }
+      .welcome { align-items: flex-start; gap: 12px; flex-direction: column; margin-bottom: 17px; }
+      h1 { font-size: 20px; }
+      .welcome .primary-button { align-self: stretch; }
+      .privacy-notice { padding: 7px 9px; }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+      .stat-card { padding: 13px; }
+      .stat-value { font-size: 23px; }
+      .stat-top { font-size: 10px; }
+      .section-grid { margin-top: 14px; gap: 13px; }
+      .panel-head { padding: 14px; }
+      .cases-panel .panel-head { align-items: flex-start; flex-direction: column; gap: 12px; }
+      .filter-row { width: 100%; }
+      .search-wrap { flex: 1; }
+      .search { width: 100%; }
+      .filter-select { max-width: 112px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .form { padding: 16px; }
+      .modal-head { padding: 17px 16px 13px; }
+      .clients-toolbar { align-items: stretch; flex-direction: column; }
+      .clients-toolbar .primary-button { width: 100%; }
+      .client-search { width: 100%; }
+      .reminder-settings { align-items: stretch; flex-wrap: wrap; }
+      .reminder-settings p { flex: 1 0 100%; }
+      .reminder-settings .primary-button, .reminder-settings .secondary-button { flex: 1; }
+      .client-grid { grid-template-columns: 1fr; }
+      .report-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .calendar-day { min-height: 50px; padding: 5px; }
+      .calendar-grid { gap: 3px; padding: 9px; }
+      .calendar-toolbar { align-items: flex-start; flex-direction: column; }
+      .calendar-month-controls { width: 100%; justify-content: space-between; }
+      .client-info-grid { grid-template-columns: 1fr; }
+      .client-profile-head { flex-wrap: wrap; }
+      .client-back { margin-right: 0; }
+      .document-row { align-items: flex-start; flex-wrap: wrap; }
+      .document-actions { width: 100%; padding-right: 43px; }
+      .attachment-item { grid-template-columns: minmax(0, 1fr) auto; }
+      .attachment-category { grid-column: 1 / -1; grid-row: 2; }
+      .attachment-remove { grid-column: 2; grid-row: 1; }
+      .finance-summary, .case-finance-summary { grid-template-columns: 1fr; gap: 8px; }
+      .document-search-form, .feature-toolbar { align-items: stretch; flex-direction: column; }
+    }
+    .field label { font-size: 13px; }
+    .field input, .field select, .field textarea,
+    .auth-form .field input { font-size: 14px; }
+    .search, .filter-select, .primary-button, .secondary-button, .text-button, .nav-link,
+    .status, .task-copy, .activity-title { font-size: 13px; }
+    th, td { font-size: 13px; }
+    .panel-title, .case-title, .client-card-name, .document-name { font-size: 14px; }
+    .panel-caption, .subtitle, .today, .nav-label, .office-card p, .profile-role,
+    .stat-top, .stat-foot, .client-card-meta, .client-card-foot, .client-info-label,
+    .client-section-head p, .document-meta, .task-date, .activity-meta, .upload-note,
+    .page-note, .privacy-notice p, .auth-card > p, .auth-note, .auth-progress,
+    .auth-error, .client-case-row { font-size: 12px; }
+  </style>
+</head>
+<body>
+  <section class="auth-screen" id="authScreen">
+    <div class="auth-card">
+      <button class="icon-button auth-theme theme-toggle" type="button" aria-label="تفعيل الوضع الداكن" title="تفعيل الوضع الداكن">☾</button>
+      <div class="auth-brand"><div class="brand-mark" aria-hidden="true"><img src="./icon.svg" alt=""></div><div><div class="brand-name">سامح عمار</div><div class="brand-sub">بوابة المكتب الخاصة</div></div></div>
+      <h1>تسجيل الدخول</h1>
+      <p>سجّل الدخول بحساب المكتب للوصول إلى القضايا وملفات العملاء.</p>
+      <aside class="privacy-notice" role="note" aria-label="تنبيه خصوصية">
+        <span class="privacy-notice-icon" aria-hidden="true">🔒</span>
+        <p>تنبيه أمان: لا تشارك كلمة المرور أو رمز التحقق مع أي شخص.</p>
+      </aside>
+      <form class="auth-form" id="loginForm">
+        <div class="field"><label for="loginEmail">البريد الإلكتروني</label><input id="loginEmail" name="email" type="email" autocomplete="username" required placeholder="البريد المسجل للمكتب"></div>
+        <div class="field"><label for="loginPassword">كلمة المرور</label><input id="loginPassword" name="password" type="password" autocomplete="current-password" required minlength="8" placeholder="أدخل كلمة المرور"></div>
+        <div class="auth-error" id="loginError" role="alert"></div>
+        <button class="primary-button" id="loginButton" type="submit">دخول آمن</button>
+        <div class="auth-progress" id="authProgress" role="status"></div>
+      </form>
+      <div class="auth-note" id="loginNote">لا يوجد تسجيل حسابات من هذه الصفحة. أنشئ حساب المكتب من Firebase Authentication، وفعّل التحقق بخطوتين للحساب.</div>
+      <button class="secondary-button install-app-button" id="authInstallButton" type="button" hidden>＋ تثبيت التطبيق على الهاتف</button>
+      <p class="install-help" id="authInstallHelp" hidden>في Safari: اضغط «مشاركة» ثم اختر «إضافة إلى الشاشة الرئيسية».</p>
+      <button class="secondary-button" id="exportLegacyButton" type="button" hidden>تنزيل نسخة من بيانات هذا الجهاز</button>
+      <div class="auth-note" id="legacyExportHint" hidden>إذا كانت بياناتك القديمة محفوظة عند فتح الموقع كملف على الجهاز، نزّل النسخة قبل الانتقال إلى رابط Firebase؛ تخزين الجهاز لا ينتقل تلقائيًا بين العناوين.</div>
+      <div class="app-attribution">تطوير <strong>المهندس عمرو جمال عوض</strong><br>منصة خاصة بالمحامي <strong>سامح عمار</strong> — جميع الحقوق محفوظة © 2026</div>
+    </div>
+  </section>
+  <div class="app" id="officeApp" hidden>
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><img src="./icon.svg" alt=""></div>
+        <div><div class="brand-name">سامح عمار</div><div class="brand-sub">للمحاماة والاستشارات</div></div>
+      </div>
+      <div class="nav-label">القائمة الرئيسية</div>
+      <nav class="nav" aria-label="القائمة الرئيسية">
+        <button class="nav-link active" data-page="الرئيسية"><span class="nav-icon">⌂</span>الرئيسية</button>
+        <button class="nav-link" data-page="القضايا"><span class="nav-icon">▤</span>القضايا<span class="nav-count" id="navCases">—</span></button>
+        <button class="nav-link" data-page="العملاء"><span class="nav-icon">♙</span>العملاء<span class="nav-count" id="navClients">—</span></button>
+        <button class="nav-link" data-page="المواعيد"><span class="nav-icon">▦</span>المواعيد</button>
+        <button class="nav-link" data-page="البحث"><span class="nav-icon">⌕</span>بحث شامل</button>
+        <button class="nav-link" data-page="بحث المستندات"><span class="nav-icon">⌕</span>بحث بالمستندات</button>
+        <button class="nav-link" data-page="التقارير"><span class="nav-icon">▥</span>التقارير</button>
+        <button class="nav-link" data-page="المهام"><span class="nav-icon">☑</span>المهام<span class="nav-count" id="navTasks">—</span></button>
+        <button class="nav-link" data-page="الحسابات"><span class="nav-icon">＄</span>الأتعاب والمصروفات</button>
+        <button class="nav-link" data-page="النماذج"><span class="nav-icon">▤</span>قوالب المستندات</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="office-card">
+          <div class="office-card-title">مكتبك، منظّم في مكان واحد</div>
+          <p>تابع قضاياك ومواعيدك وملفات عملائك بكل سهولة.</p>
+        </div>
+        <div class="profile">
+          <div class="avatar">سع</div>
+          <div><div class="profile-name">المستشار سامح عمار</div><div class="profile-role">مدير المكتب</div></div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="mobile-brand"><span class="brand-mark" aria-hidden="true"><img src="./icon.svg" alt=""></span> سامح عمار</div>
+        <div class="breadcrumbs">مكتب سامح عمار <span> / </span> <strong id="currentPage">الرئيسية</strong></div>
+        <div class="top-actions">
+          <span class="today" id="today"></span>
+          <button class="icon-button bell-button" id="notificationButton" aria-label="تفعيل تنبيهات الجلسات" title="تفعيل تنبيهات الجلسات">🔔<span class="notification-dot" id="notificationDot"></span></button>
+          <button class="icon-button install-app-button" id="officeInstallButton" type="button" aria-label="تثبيت التطبيق" title="تثبيت التطبيق" hidden>⬇</button>
+          <button class="icon-button theme-toggle" type="button" aria-label="تفعيل الوضع الداكن" title="تفعيل الوضع الداكن">☾</button>
+          <button class="icon-button" id="logoutButton" aria-label="تسجيل الخروج" title="تسجيل الخروج">↪</button>
+          <button class="icon-button menu-toggle" id="menuToggle" aria-label="فتح القائمة">☰</button>
+        </div>
+      </header>
+
+      <div class="content">
+        <div id="dashboardView">
+        <section class="welcome">
+          <div><h1 id="welcomeTitle">أهلًا، أستاذ سامح 👋</h1><div class="subtitle" id="welcomeSubtitle">إليك ملخص أعمال مكتبك اليوم.</div></div>
+          <button class="primary-button" id="newCaseButton"><span>＋</span> إضافة قضية جديدة</button>
+        </section>
+        <div class="reminder-settings"><p>فعّل إشعارات المتصفح لتصلك تذكيرات الجلسات قبل موعدها بيوم وقبلها بساعة.</p><button class="secondary-button" id="importLegacyButton" type="button">استيراد نسخة قديمة</button><input id="importLegacyInput" type="file" accept=".json,application/json" hidden><button class="primary-button" id="enableNotificationsButton" type="button">تفعيل التنبيهات</button></div>
+
+        <section class="stats" aria-label="ملخص المكتب">
+          <article class="stat-card">
+            <div class="stat-top"><span>إجمالي القضايا</span><span class="stat-icon blue">▤</span></div>
+            <div class="stat-value" id="totalCases">0</div><div class="stat-foot">جميع القضايا المسجلة</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top"><span>قضايا جارية</span><span class="stat-icon green">◷</span></div>
+            <div class="stat-value" id="activeCases">0</div><div class="stat-foot">قيد المتابعة حاليًا</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top"><span>مواعيد هذا الأسبوع</span><span class="stat-icon gold">▦</span></div>
+            <div class="stat-value" id="upcomingCount">0</div><div class="stat-foot">جلسات ومواعيد قادمة</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top"><span>مهام غير مكتملة</span><span class="stat-icon red">☑</span></div>
+            <div class="stat-value" id="openTasks">0</div><div class="stat-foot">مهام تحتاج إلى إنجاز</div>
+          </article>
+        </section>
+
+        <div class="section-grid">
+          <section class="panel cases-panel" id="casesSection">
+            <div class="panel-head">
+              <div><div class="panel-title" id="casesTitle">أحدث القضايا</div><div class="panel-caption">تابع حالة ملفات المكتب</div></div>
+              <div class="filter-row">
+                <label class="search-wrap"><span>⌕</span><input class="search" id="caseSearch" type="search" placeholder="ابحث عن قضية أو عميل" aria-label="ابحث عن قضية أو عميل"></label>
+                <select class="filter-select" id="statusFilter" aria-label="تصفية حسب الحالة">
+                  <option value="all">كل الحالات</option><option value="active">جارية</option><option value="pending">بانتظار جلسة</option><option value="closed">منتهية</option>
+                </select>
+              </div>
+            </div>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>رقم القضية</th><th>القضية / العميل</th><th>النوع</th><th>الجلسة القادمة</th><th>الحالة</th><th></th></tr></thead>
+                <tbody id="casesBody"></tbody>
+              </table>
+            </div>
+            <div class="empty-state" id="casesEmpty" hidden><strong>لا توجد قضايا مطابقة</strong>جرّب تغيير البحث أو إضافة قضية جديدة.</div>
+          </section>
+
+          <aside class="activity-panel">
+            <section class="panel">
+              <div class="panel-head"><div><div class="panel-title">المواعيد القادمة</div><div class="panel-caption">الجلسات المسجلة في ملفاتك</div></div><button class="text-button" data-goto="المواعيد">عرض الكل</button></div>
+              <div class="activity-list" id="appointmentsList"></div>
+            </section>
+            <section class="panel tasks-panel" id="tasksSection">
+              <div class="panel-head"><div><div class="panel-title">مهام المكتب</div><div class="panel-caption">قائمة المتابعة اليومية</div></div><button class="text-button" id="addTaskButton">＋ مهمة</button></div>
+              <div class="task-list" id="taskList"></div>
+            </section>
+          </aside>
+        </div>
+        <div class="page-note">تُحمى ملفات المكتب بحساب Firebase، وتُحفظ في مشروعك السحابي وفق قواعد الوصول المنشورة. ملفات التصدير تحتوي بيانات سرية؛ احتفظ بها في مكان مشفّر واحذفها بعد الاستيراد.</div>
+        </div>
+        <section class="clients-view" id="clientsView" hidden>
+          <div class="clients-toolbar" id="clientsListView">
+            <div><h2>ملفات العملاء</h2><p>بيانات كل عميل وقضاياه ومستنداته في ملف واحد.</p></div>
+            <div class="filter-row">
+              <label class="search-wrap"><span>⌕</span><input class="search client-search" id="clientSearch" type="search" placeholder="ابحث عن عميل" aria-label="ابحث عن عميل"></label>
+              <button class="primary-button" id="newClientButton"><span>＋</span> إضافة عميل</button>
+            </div>
+          </div>
+          <div class="client-grid" id="clientGrid"></div>
+          <div class="empty-state" id="clientsEmpty" hidden><strong>لا يوجد عملاء مطابقون</strong>أضف عميلًا جديدًا أو جرّب البحث باسم مختلف.</div>
+          <section class="client-profile" id="clientProfile" hidden></section>
+          <div class="page-note">المستندات متاحة بعد تسجيل الدخول فقط، وتُحفظ في Firebase Storage.</div>
+        </section>
+        <section class="page-view" id="calendarView" hidden>
+          <div class="panel">
+            <div class="panel-head calendar-toolbar">
+              <div><div class="panel-title">تقويم الجلسات</div><div class="panel-caption">اختر يومًا لمراجعة جلساته ومواعيده.</div></div>
+              <div class="calendar-month-controls">
+                <button class="secondary-button" id="calendarToday" type="button">هذا الشهر</button>
+                <button class="icon-button" id="calendarPrev" type="button" aria-label="الشهر السابق">‹</button>
+                <strong class="calendar-month-title" id="calendarMonthTitle"></strong>
+                <button class="icon-button" id="calendarNext" type="button" aria-label="الشهر التالي">›</button>
+              </div>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+            <div class="calendar-day-list" id="calendarDayList"></div>
+          </div>
+        </section>
+        <section class="page-view" id="globalSearchView" hidden>
+          <section class="panel">
+            <div class="panel-head"><div><div class="panel-title">بحث شامل في المكتب</div><div class="panel-caption">ابحث برقم القضية أو اسمها أو العميل أو الهاتف أو البريد أو اسم المستند.</div></div></div>
+            <div class="global-search-box"><input class="search" id="globalSearchInput" type="search" autocomplete="off" placeholder="اكتب كلمة للبحث..." aria-label="بحث شامل"></div>
+            <div class="global-search-results" id="globalSearchResults"><div class="empty-state">ابدأ بكتابة اسم أو رقم للبحث.</div></div>
+          </section>
+        </section>
+        <section class="page-view" id="reportsView" hidden>
+          <div class="clients-toolbar"><div><h2>تقارير المكتب</h2><p>ملخص قابل للطباعة والتصدير للحفظ أو المراجعة.</p></div><div class="report-actions"><button class="secondary-button" id="printReportButton" type="button">طباعة التقرير</button><button class="primary-button" id="exportReportButton" type="button">تصدير CSV</button></div></div>
+          <div class="report-summary" id="reportSummary"></div>
+          <section class="panel">
+            <div class="panel-head"><div><div class="panel-title">سجل القضايا</div><div class="panel-caption">يتضمن حالة القضية والجلسة القادمة المسجلة.</div></div></div>
+            <div class="report-table-wrap"><table class="report-table"><thead><tr><th>رقم القضية</th><th>اسم القضية</th><th>العميل</th><th>النوع</th><th>الحالة</th><th>الجلسة القادمة</th><th>المحكمة</th></tr></thead><tbody id="reportCasesBody"></tbody></table></div>
+          </section>
+          <div class="page-note">ملفات التصدير والتقارير قد تحتوي بيانات سرية؛ احفظها في مكان آمن ولا ترسلها عبر قنوات غير موثوقة.</div>
+        </section>
+        <section class="page-view" id="caseDetailView" hidden></section>
+        <section class="page-view" id="documentSearchView" hidden>
+          <div class="feature-toolbar"><div><h2>بحث داخل المستندات</h2><p>استخرج النص محليًا من ملفات المكتب وابحث فيه دون رفعه إلى خدمة خارجية.</p></div></div>
+          <section class="panel">
+            <form class="document-search-form" id="documentSearchForm"><input class="search" id="documentSearchInput" type="search" required minlength="2" placeholder="ابحث عن كلمة أو رقم داخل المستندات..." aria-label="ابحث داخل المستندات"><button class="primary-button" id="documentSearchButton" type="submit">بحث بالمحتوى</button></form>
+            <div class="document-search-note">البحث مدعوم داخل ملفات TXT وPDF النصية وDOCX ويُجرى على هذا الجهاز. لا يشمل ملفات PDF المصورة أو الصور أو صيغة DOC القديمة (لا يوجد OCR). قد يستغرق فحص ملفات كثيرة وقتًا.</div>
+            <div class="global-search-results" id="documentSearchResults"><div class="empty-state">أدخل كلمتين على الأقل لبدء البحث.</div></div>
+          </section>
+        </section>
+        <section class="page-view" id="financeView" hidden>
+          <div class="feature-toolbar"><div><h2>الأتعاب والمصروفات</h2><p>سجل الأتعاب المتفق عليها والدفعات والمصروفات لكل قضية، مع إرفاق الإيصالات.</p></div></div>
+          <section class="finance-summary" id="financeSummary"></section>
+          <section class="panel">
+            <div class="panel-head"><div><div class="panel-title">إضافة حركة مالية</div><div class="panel-caption">القيم بالجنيه المصري؛ لا تُسجل أرقام بطاقات أو بيانات مصرفية.</div></div></div>
+            <form class="form" id="financeForm">
+              <div class="form-grid">
+                <div class="field"><label for="financeType">نوع الحركة *</label><select id="financeType" required><option value="agreed">أتعاب متفق عليها</option><option value="payment">دفعة أتعاب</option><option value="expense">مصروف قضية</option></select></div>
+                <div class="field"><label for="financeAmount">المبلغ بالجنيه *</label><input id="financeAmount" type="number" min="0.01" max="1000000000" step="0.01" required></div>
+                <div class="field"><label for="financeCase">القضية المرتبطة *</label><select id="financeCase" required></select></div>
+                <div class="field"><label for="financeDate">التاريخ *</label><input id="financeDate" type="date" required></div>
+                <div class="field full"><label for="financeDescription">البيان *</label><input id="financeDescription" maxlength="160" required placeholder="وصف الأتعاب أو الدفعة أو المصروف"></div>
+                <div class="field full"><label for="financeReceipt">إيصال (اختياري)</label><input id="financeReceipt" type="file" accept=".pdf,.jpg,.jpeg,.png,.txt"><small class="upload-note">الصيغ المدعومة PDF أو صورة أو TXT، حتى 10 ميجابايت. سيُرفق بملف عميل القضية.</small></div>
+              </div>
+              <div class="form-actions"><button class="primary-button" id="saveFinanceButton" type="submit">حفظ الحركة</button></div>
+            </form>
+          </section>
+          <section class="panel panel-spaced"><div class="panel-head"><div><div class="panel-title">سجل الحركات</div><div class="panel-caption">الأتعاب المتبقية = الأتعاب المتفق عليها ناقص الدفعات.</div></div></div><div class="feature-table-wrap"><table class="feature-table"><thead><tr><th>التاريخ</th><th>القضية والعميل</th><th>النوع</th><th>البيان</th><th>المبلغ</th><th>الإيصال</th></tr></thead><tbody id="financeRows"></tbody></table></div></section>
+        </section>
+        <section class="page-view" id="templatesView" hidden>
+          <div class="feature-toolbar"><div><h2>قوالب مستندات المكتب</h2><p>املأ مسودة مرتبطة بعميل أو قضية، ثم نزّلها بصيغة Word أو اطبعها إلى PDF للمراجعة.</p></div></div>
+          <section class="panel">
+            <form class="form" id="templateForm">
+              <div class="form-grid">
+                <div class="field"><label for="templateKind">نوع المسودة *</label><select id="templateKind"><option value="session">محضر متابعة جلسة</option><option value="notice">مسودة إخطار / مطالبة</option><option value="memo">مذكرة متابعة داخلية</option></select></div>
+                <div class="field"><label for="templateCase">القضية *</label><select id="templateCase" required></select></div>
+                <div class="field full"><label for="templateSubject">العنوان *</label><input id="templateSubject" maxlength="140" required></div>
+                <div class="field full"><label for="templateBody">نص المسودة *</label><textarea id="templateBody" rows="10" maxlength="12000" required></textarea></div>
+              </div>
+              <div class="form-actions"><button class="secondary-button" id="refreshTemplateButton" type="button">إعادة تعبئة القالب</button><button class="secondary-button" id="downloadTemplateButton" type="button">تنزيل Word (.doc)</button><button class="primary-button" id="printTemplateButton" type="button">طباعة / حفظ PDF</button></div>
+            </form>
+          </section>
+          <section class="panel panel-spaced"><div class="panel-head"><div><div class="panel-title">معاينة المسودة</div><div class="panel-caption">راجع النص والبيانات وأكمل الصياغة القانونية قبل الاستخدام.</div></div></div><div class="template-preview" id="templatePreview"></div></section>
+          <div class="page-note">القوالب مسودات تنظيمية وليست استشارة أو نموذجًا قانونيًا معتمدًا؛ راجعها وعدّلها وفق وقائع القضية والقانون المختص قبل إرسالها أو تقديمها.</div>
+        </section>
+        <div class="app-attribution">تطوير <strong>المهندس عمرو جمال عوض</strong> · منصة خاصة بالمحامي <strong>سامح عمار</strong> · جميع الحقوق محفوظة © 2026</div>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="caseModal" role="presentation">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head"><div><h2 id="modalTitle">إضافة قضية جديدة</h2><p>أدخل بيانات القضية لحفظها في سجل المكتب.</p></div><button class="close-modal" id="closeModal" aria-label="إغلاق">×</button></div>
+      <form class="form" id="caseForm">
+        <div class="form-grid">
+          <div class="field"><label for="caseName">اسم القضية *</label><input id="caseName" name="name" required maxlength="80" placeholder="مثال: نزاع تجاري"></div>
+          <div class="field"><label for="clientName">اسم العميل *</label><input id="clientName" name="client" required maxlength="60" placeholder="الاسم الكامل"></div>
+          <div class="field"><label for="caseType">نوع القضية</label><select id="caseType" name="type"><option>مدني</option><option>تجاري</option><option>جنائي</option><option>أحوال شخصية</option><option>عمالي</option><option>إداري</option><option>أخرى</option></select></div>
+          <div class="field"><label for="caseStatus">الحالة</label><select id="caseStatus" name="status"><option value="active">جارية</option><option value="pending">بانتظار جلسة</option><option value="closed">منتهية</option></select></div>
+          <div class="field"><label for="caseDate">تاريخ الجلسة القادمة</label><input id="caseDate" name="date" type="date"></div>
+          <div class="field"><label for="caseTime">وقت الجلسة</label><input id="caseTime" name="time" type="time" value="09:00"></div>
+          <div class="field full"><label for="courtName">المحكمة</label><input id="courtName" name="court" maxlength="60" placeholder="اسم المحكمة"></div>
+          <div class="field full"><label for="caseNotes">ملاحظات</label><textarea id="caseNotes" name="notes" maxlength="500" placeholder="تفاصيل أو ملاحظات إضافية (اختياري)"></textarea></div>
+          <div class="field full"><label for="caseDocuments">مرفقات القضية</label><input id="caseDocuments" name="documents" type="file" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt"><small class="upload-note" id="caseDocumentsHint">اختر عدة ملفات، وحدد نوع كل مرفق قبل حفظ القضية ورفعها. الحد الأقصى 10 ميجابايت لكل ملف.</small><div class="attachment-queue" id="caseAttachmentQueue" aria-live="polite"></div></div>
+        </div>
+        <div class="form-actions"><button class="primary-button" id="saveCaseButton" type="submit">حفظ القضية</button><button class="secondary-button" type="button" id="cancelModal">إلغاء</button></div>
+      </form>
+    </section>
+  </div>
+  <div class="modal-backdrop" id="clientModal" role="presentation">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="clientModalTitle">
+      <div class="modal-head"><div><h2 id="clientModalTitle">إضافة عميل جديد</h2><p>أنشئ ملفًا للعميل لإدارة بياناته ومستنداته.</p></div><button class="close-modal" id="closeClientModal" aria-label="إغلاق">×</button></div>
+      <form class="form" id="clientForm">
+        <div class="form-grid">
+          <div class="field full"><label for="newClientName">اسم العميل *</label><input id="newClientName" name="name" required maxlength="80" placeholder="الاسم الكامل أو اسم الشركة"></div>
+          <div class="field"><label for="newClientPhone">رقم الهاتف</label><input id="newClientPhone" name="phone" type="tel" maxlength="30" placeholder="رقم التواصل"></div>
+          <div class="field"><label for="newClientEmail">البريد الإلكتروني</label><input id="newClientEmail" name="email" type="email" maxlength="100" placeholder="name@example.com"></div>
+          <div class="field full"><label for="newClientNotes">ملاحظات</label><textarea id="newClientNotes" name="notes" maxlength="500" placeholder="ملاحظات عن العميل (اختياري)"></textarea></div>
+        </div>
+        <div class="form-actions"><button class="primary-button" type="submit">حفظ العميل</button><button class="secondary-button" type="button" id="cancelClientModal">إلغاء</button></div>
+      </form>
+    </section>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="./firebase-config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-messaging-compat.js"></script>
+  <script>
+    (() => {
+      const LEGACY_STORAGE_KEY = "sameh-ammar-law-office-v1";
+      const MAX_DOCUMENT_SIZE = 10 * 1024 * 1024;
+      const statusLabels = { active: "جارية", pending: "بانتظار جلسة", closed: "منتهية" };
+      const documentCategories = ["مستند قضائي", "توكيل", "بطاقة هوية", "عقد", "مراسلات", "إيصال", "أخرى"];
+      const monthNames = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
+      const weekdayNames = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+      const $ = (id) => document.getElementById(id);
+      function applyTheme(theme) {
+        document.documentElement.dataset.theme = theme;
+        document.querySelectorAll(".theme-toggle").forEach((button) => {
+          const isDark = theme === "dark";
+          button.textContent = isDark ? "☀" : "☾";
+          button.setAttribute("aria-label", isDark ? "تفعيل الوضع الفاتح" : "تفعيل الوضع الداكن");
+          button.setAttribute("aria-pressed", String(isDark));
+          button.title = isDark ? "تفعيل الوضع الفاتح" : "تفعيل الوضع الداكن";
+        });
+      }
+      document.querySelectorAll(".theme-toggle").forEach((button) => {
+        button.addEventListener("click", () => {
+          const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+          applyTheme(nextTheme);
+          try {
+            localStorage.setItem("sameh-theme", nextTheme);
+          } catch (error) {
+            console.warn("تعذر حفظ تفضيل المظهر.", error);
+            showToast("تعذر حفظ المظهر؛ سيبقى التغيير مؤقتًا لهذه الجلسة.");
+          }
+        });
+      });
+      applyTheme(document.documentElement.dataset.theme || "light");
+      let data;
+      let toastTimer;
+      let currentPage = "الرئيسية";
+      let selectedClientId = null;
+      let auth;
+      let firestore;
+      let storage;
+      let activeUser = null;
+      let initialized = false;
+      let messaging = null;
+      let editingCaseId = null;
+      let stagedCaseFiles = [];
+      const calendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+      const calendarToday = new Date();
+      let selectedCalendarDate = `${calendarToday.getFullYear()}-${String(calendarToday.getMonth() + 1).padStart(2, "0")}-${String(calendarToday.getDate()).padStart(2, "0")}`;
+
+      function ensureClientsForCases(source) {
+        source.cases.forEach((item) => {
+          if (!item.client || source.clients.some((client) => client.name.trim().toLocaleLowerCase("ar") === item.client.trim().toLocaleLowerCase("ar"))) return;
+          source.clients.push({ id: `client-${crypto.randomUUID()}`, name: item.client, phone: "", email: "", notes: "", documents: [] });
+        });
+      }
+      function clientCases(client) {
+        return data.cases.filter((item) => item.client.trim().toLocaleLowerCase("ar") === client.name.trim().toLocaleLowerCase("ar"));
+      }
+      function officeRef() {
+        if (!activeUser) throw new Error("سجّل الدخول أولًا للوصول إلى بيانات المكتب.");
+        return firestore.collection("offices").doc(activeUser.uid);
+      }
+      async function saveData() {
+        await officeRef().set({ cases: data.cases, clients: data.clients, tasks: data.tasks, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+      }
+      async function saveCaseEvent(item) {
+        await officeRef().collection("caseEvents").doc(item.id).set(item);
+      }
+      async function saveFinancialTransaction(item) {
+        await officeRef().collection("financialTransactions").doc(item.id).set(item);
+      }
+      function emptyOfficeData() {
+        return {
+          cases: [],
+          clients: [],
+          caseEvents: [],
+          transactions: [],
+          tasks: []
+        };
+      }
+      function readLegacyOfficeData() {
+        const saved = localStorage.getItem(LEGACY_STORAGE_KEY);
+        if (!saved) return emptyOfficeData();
+        const parsed = JSON.parse(saved);
+        if (!parsed || !Array.isArray(parsed.cases) || !Array.isArray(parsed.tasks)) throw new Error("تعذرت قراءة البيانات القديمة. لم يتم حذف أي بيانات محلية.");
+        parsed.clients = Array.isArray(parsed.clients) ? parsed.clients : [];
+        ensureClientsForCases(parsed);
+        parsed.tasks = parsed.tasks.map((task) => ({ ...task }));
+        parsed.clients.forEach((client) => { client.documents = Array.isArray(client.documents) ? client.documents : []; });
+        return {
+          cases: parsed.cases,
+          clients: parsed.clients,
+          tasks: parsed.tasks,
+          caseEvents: Array.isArray(parsed.caseEvents) ? parsed.caseEvents : [],
+          transactions: Array.isArray(parsed.transactions) ? parsed.transactions : []
+        };
+      }
+      async function readLegacyDocuments() {
+        if (!("indexedDB" in window)) return [];
+        const db = await new Promise((resolve, reject) => {
+          const request = indexedDB.open("sameh-ammar-office-documents", 1);
+          request.onupgradeneeded = () => {
+            if (!request.result.objectStoreNames.contains("documents")) request.result.createObjectStore("documents", { keyPath: "id" });
+          };
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error || new Error("تعذر فتح المستندات المحلية القديمة."));
+        });
+        if (!db.objectStoreNames.contains("documents")) return [];
+        return new Promise((resolve, reject) => {
+          const request = db.transaction("documents", "readonly").objectStore("documents").getAll();
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error || new Error("تعذر قراءة المستندات المحلية القديمة."));
+        });
+      }
+      function blobToDataUrl(blob) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => reject(reader.error || new Error("تعذر إعداد المستند للتصدير."));
+          reader.readAsDataURL(blob);
+        });
+      }
+      async function downloadLegacyArchive() {
+        const legacy = readLegacyOfficeData();
+        const documents = await readLegacyDocuments();
+        const archivedDocuments = [];
+        for (const document of documents) {
+          if (!document.blob) continue;
+          archivedDocuments.push({
+            id: document.id,
+            clientId: document.clientId,
+            name: document.name,
+            extension: document.extension,
+            size: document.size,
+            addedAt: document.addedAt,
+            dataUrl: await blobToDataUrl(document.blob)
+          });
+        }
+        const archive = new Blob([JSON.stringify({ version: 1, data: legacy, documents: archivedDocuments })], { type: "application/json" });
+        const url = URL.createObjectURL(archive);
+        const link = window.document.createElement("a");
+        link.href = url;
+        link.download = `sameh-ammar-office-backup-${new Date().toISOString().slice(0, 10)}.json`;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+      async function importLegacyArchive(file) {
+        if (file.size > 100 * 1024 * 1024) throw new Error("حجم نسخة البيانات يتجاوز 100 ميجابايت.");
+        const archive = JSON.parse(await file.text());
+        if (archive.version !== 1 || !archive.data || !Array.isArray(archive.data.cases) || !Array.isArray(archive.data.clients) || !Array.isArray(archive.data.tasks) || !Array.isArray(archive.documents)) {
+          throw new Error("ملف النسخة الاحتياطية غير صالح.");
+        }
+        archive.data.caseEvents = Array.isArray(archive.data.caseEvents) ? archive.data.caseEvents : [];
+        archive.data.transactions = Array.isArray(archive.data.transactions) ? archive.data.transactions : [];
+        const importId = `archive-${file.size}-${file.lastModified}`;
+        const marker = officeRef().collection("imports").doc(importId);
+        if ((await marker.get()).exists) {
+          showToast("تم استيراد هذه النسخة مسبقًا.");
+          return;
+        }
+        const legacyClients = archive.data.clients;
+        ensureClientsForCases(archive.data);
+        const previousData = structuredClone(data);
+        const clientIds = new Map();
+        const caseIds = new Map();
+        const documentIds = new Map(archive.documents.map((item) => [item.id, `document-${crypto.randomUUID()}`]));
+        for (const oldClient of legacyClients) {
+          const existing = data.clients.find((item) => item.name.trim().toLocaleLowerCase("ar") === oldClient.name.trim().toLocaleLowerCase("ar"));
+          if (existing) {
+            existing.phone = existing.phone || oldClient.phone || "";
+            existing.email = existing.email || oldClient.email || "";
+            existing.notes = existing.notes || oldClient.notes || "";
+            existing.documents = Array.isArray(existing.documents) ? existing.documents : [];
+            clientIds.set(oldClient.id, existing.id);
+          } else {
+            const clientId = oldClient.id && !data.clients.some((item) => item.id === oldClient.id) ? oldClient.id : `client-${crypto.randomUUID()}`;
+            const client = { ...oldClient, documents: [], id: clientId };
+            data.clients.push(client);
+            clientIds.set(oldClient.id, client.id);
+          }
+        }
+        for (const oldCase of archive.data.cases) {
+          const imported = data.cases.find((item) => item._importId === importId && item.sourceId === oldCase.id);
+          const duplicate = imported || data.cases.find((item) => item.id === oldCase.id && item.name === oldCase.name && item.client === oldCase.client);
+          if (duplicate) {
+            caseIds.set(oldCase.id, duplicate.id);
+            continue;
+          }
+          const collision = data.cases.some((item) => item.id === oldCase.id);
+          const nextNumber = Math.max(0, ...data.cases.map((item) => Number((item.id.match(/\d+$/) || [0])[0]))) + 1;
+          const importedCase = { ...oldCase, id: collision ? `${new Date().getFullYear()}/${String(nextNumber).padStart(4, "0")}` : oldCase.id, sourceId: oldCase.id, _importId: importId };
+          data.cases.push(importedCase);
+          caseIds.set(oldCase.id, importedCase.id);
+        }
+        for (const oldTask of archive.data.tasks) {
+          if (data.tasks.some((item) => item._importId === importId && item.id === oldTask.id)) continue;
+          const duplicate = data.tasks.some((item) => item.id === oldTask.id && item.title === oldTask.title);
+          if (!duplicate) {
+            const collision = data.tasks.some((item) => item.id === oldTask.id);
+            data.tasks.push({ ...oldTask, id: collision ? `task-${crypto.randomUUID()}` : oldTask.id, caseId: caseIds.get(oldTask.caseId) || oldTask.caseId, _importId: importId });
+          }
+        }
+        for (const oldEvent of archive.data.caseEvents) {
+          if (data.caseEvents.some((item) => item._importId === importId && item.sourceId === oldEvent.id)) continue;
+          const caseId = caseIds.get(oldEvent.caseId) || oldEvent.caseId;
+          if (data.cases.some((item) => item.id === caseId)) data.caseEvents.push({ ...oldEvent, id: `event-${crypto.randomUUID()}`, caseId, sourceId: oldEvent.id, _importId: importId });
+        }
+        for (const oldTransaction of archive.data.transactions) {
+          if (data.transactions.some((item) => item._importId === importId && item.sourceId === oldTransaction.id)) continue;
+          const caseId = caseIds.get(oldTransaction.caseId) || oldTransaction.caseId;
+          if (data.cases.some((item) => item.id === caseId)) data.transactions.push({
+            ...oldTransaction,
+            id: `finance-${crypto.randomUUID()}`,
+            caseId,
+            clientId: clientIds.get(oldTransaction.clientId) || oldTransaction.clientId,
+            receiptDocumentId: documentIds.get(oldTransaction.receiptDocumentId) || null,
+            sourceId: oldTransaction.id,
+            _importId: importId
+          });
+        }
+        try {
+          await saveData();
+          for (const item of archive.data.caseEvents) {
+            const imported = data.caseEvents.find((entry) => entry._importId === importId && entry.sourceId === item.id);
+            if (imported) await saveCaseEvent(imported);
+          }
+          for (const oldDocument of archive.documents) {
+            const clientId = clientIds.get(oldDocument.clientId) || data.clients.find((item) => item.id === oldDocument.clientId)?.id;
+            const client = data.clients.find((item) => item.id === clientId);
+            if (!client) continue;
+            const existingDocument = client.documents.find((item) => item.sourceId === oldDocument.id);
+            if (existingDocument) {
+              documentIds.set(oldDocument.id, existingDocument.id);
+              continue;
+            }
+            if (!oldDocument.dataUrl) continue;
+            const match = oldDocument.dataUrl.match(/^data:([^;,]*);base64,(.*)$/);
+            if (!match) throw new Error(`تعذر قراءة المستند ${oldDocument.name}.`);
+            if (!["pdf", "doc", "docx", "jpg", "jpeg", "png", "txt"].includes(String(oldDocument.extension).toLowerCase())) {
+              throw new Error(`صيغة المستند ${oldDocument.name} غير مدعومة.`);
+            }
+            const binary = atob(match[2]);
+            const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+            const blob = new File([bytes], oldDocument.name, { type: match[1] || "application/octet-stream" });
+            await writeDocument({
+              id: documentIds.get(oldDocument.id) || `document-${crypto.randomUUID()}`,
+              sourceId: oldDocument.id,
+              clientId,
+              name: oldDocument.name,
+              extension: oldDocument.extension,
+              addedAt: oldDocument.addedAt || Date.now()
+            }, "upload", blob);
+          }
+          for (const item of archive.data.transactions) {
+            const imported = data.transactions.find((entry) => entry._importId === importId && entry.sourceId === item.id);
+            if (imported) await saveFinancialTransaction(imported);
+          }
+          await marker.set({ completedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        } catch (error) {
+          data = previousData;
+          try {
+            const remote = await officeRef().get();
+            if (remote.exists) {
+              const saved = remote.data();
+              data = { cases: saved.cases || [], clients: saved.clients || [], tasks: saved.tasks || [], caseEvents: [], transactions: [] };
+              const [eventSnapshots, transactionSnapshots] = await Promise.all([
+                officeRef().collection("caseEvents").get(),
+                officeRef().collection("financialTransactions").get()
+              ]);
+              data.caseEvents = eventSnapshots.docs.map((document) => document.data());
+              data.transactions = transactionSnapshots.docs.map((document) => document.data());
+            }
+          } catch (reloadError) {
+            console.error("Failed to refresh office data after import error:", reloadError);
+          }
+          render();
+          throw error;
+        }
+        render();
+        showToast("اكتمل استيراد بيانات المكتب ومستنداته.");
+      }
+      async function clearLegacyDocuments() {
+        const db = await new Promise((resolve, reject) => {
+          const request = indexedDB.open("sameh-ammar-office-documents", 1);
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error || new Error("تعذر فتح مخزن المستندات القديمة."));
+        });
+        if (!db.objectStoreNames.contains("documents")) return;
+        await new Promise((resolve, reject) => {
+          const transaction = db.transaction("documents", "readwrite");
+          transaction.objectStore("documents").clear();
+          transaction.oncomplete = () => resolve();
+          transaction.onerror = () => reject(transaction.error || new Error("تعذر حذف النسخة المحلية بعد الترحيل."));
+          transaction.onabort = () => reject(transaction.error || new Error("تعذر حذف النسخة المحلية بعد الترحيل."));
+        });
+        db.close();
+      }
+      async function loadOfficeData(user) {
+        activeUser = user;
+        const reference = officeRef();
+        const snapshot = await reference.get();
+        if (snapshot.exists) {
+          const saved = snapshot.data();
+          data = {
+            cases: Array.isArray(saved.cases) ? saved.cases : [],
+            clients: Array.isArray(saved.clients) ? saved.clients : [],
+            tasks: Array.isArray(saved.tasks) ? saved.tasks : [],
+            caseEvents: [],
+            transactions: []
+          };
+          data.clients.forEach((client) => { client.documents = Array.isArray(client.documents) ? client.documents : []; });
+          const [eventSnapshots, transactionSnapshots] = await Promise.all([
+            reference.collection("caseEvents").get(),
+            reference.collection("financialTransactions").get()
+          ]);
+          data.caseEvents = eventSnapshots.docs.map((document) => document.data());
+          data.transactions = transactionSnapshots.docs.map((document) => document.data());
+        } else {
+          data = readLegacyOfficeData();
+          data.caseEvents = Array.isArray(data.caseEvents) ? data.caseEvents : [];
+          data.transactions = Array.isArray(data.transactions) ? data.transactions : [];
+          await saveData();
+          for (const entry of data.caseEvents) await saveCaseEvent(entry);
+          for (const entry of data.transactions) await saveFinancialTransaction(entry);
+        }
+        try {
+          const legacyData = readLegacyOfficeData();
+          const oldDocuments = await readLegacyDocuments();
+          for (const oldDocument of oldDocuments) {
+            const legacyClient = legacyData.clients.find((item) => item.id === oldDocument.clientId);
+            const client = data.clients.find((item) => item.id === oldDocument.clientId) ||
+              data.clients.find((item) => legacyClient && item.name.trim().toLocaleLowerCase("ar") === legacyClient.name.trim().toLocaleLowerCase("ar"));
+            if (!client || !oldDocument.blob || client.documents.some((item) => item.name === oldDocument.name && item.size === oldDocument.size)) continue;
+            await writeDocument({ ...oldDocument, clientId: client.id }, "upload", oldDocument.blob);
+          }
+          await clearLegacyDocuments();
+          localStorage.removeItem(LEGACY_STORAGE_KEY);
+        } catch (error) {
+          console.error("Legacy attachment migration failed:", error);
+          showToast("نُقلت بيانات المكتب، لكن تعذر ترحيل بعض المستندات القديمة. ستبقى البيانات المحلية دون حذف.");
+        }
+      }
+      function getClientDocuments(clientId) {
+        const client = data.clients.find((item) => item.id === clientId);
+        return Promise.resolve((client?.documents || []).slice().sort((a, b) => b.addedAt - a.addedAt));
+      }
+      function getDocument(documentId) {
+        for (const client of data.clients) {
+          const document = (client.documents || []).find((item) => item.id === documentId);
+          if (document) return Promise.resolve({ ...document, clientId: client.id });
+        }
+        return Promise.resolve(null);
+      }
+      async function writeDocument(document, operation, file) {
+        const client = operation === "upload"
+          ? data.clients.find((item) => item.id === document.clientId)
+          : data.clients.find((item) => (item.documents || []).some((entry) => entry.id === document));
+        if (!client) throw new Error("ملف العميل غير موجود.");
+        client.documents = Array.isArray(client.documents) ? client.documents : [];
+        if (operation === "delete") {
+          const current = client.documents.find((item) => item.id === document);
+          if (!current) throw new Error("المستند غير موجود.");
+          client.documents = client.documents.filter((item) => item.id !== current.id);
+          documentTextCache.delete(current.id);
+          try {
+            await saveData();
+          } catch (error) {
+            client.documents.push(current);
+            throw error;
+          }
+          await storage.ref(current.storagePath).delete();
+          return;
+        }
+        if (!file || file.size > MAX_DOCUMENT_SIZE) throw new Error("الملف غير صالح أو يتجاوز الحد المسموح.");
+        const storagePath = `offices/${activeUser.uid}/clients/${client.id}/${document.id}/${encodeURIComponent(file.name)}`;
+        const contentTypes = { pdf: "application/pdf", doc: "application/msword", docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", txt: "text/plain" };
+        await storage.ref(storagePath).put(file, { contentType: contentTypes[document.extension] });
+        const metadata = {
+          id: document.id,
+          name: document.name,
+          extension: document.extension,
+          category: document.category || "أخرى",
+          size: file.size,
+          addedAt: document.addedAt || Date.now(),
+          storagePath
+        };
+        documentTextCache.delete(document.id);
+        client.documents.unshift(metadata);
+        try {
+          await saveData();
+        } catch (error) {
+          client.documents.shift();
+          await storage.ref(storagePath).delete();
+          throw error;
+        }
+      }
+      function caseDateTime(item) {
+        if (!item.date) return null;
+        return new Date(`${item.date}T${item.time || "09:00"}:00`);
+      }
+      function nextCaseReminders() {
+        const now = Date.now();
+        return data.cases.filter((item) => item.status !== "closed" && caseDateTime(item)?.getTime() > now && caseDateTime(item).getTime() - now <= 24 * 60 * 60 * 1000)
+          .sort((a, b) => caseDateTime(a) - caseDateTime(b));
+      }
+      function formatDate(value) {
+        if (!value) return "—";
+        const date = new Date(value + "T12:00:00");
+        return `${date.getDate()} ${monthNames[date.getMonth()]}`;
+      }
+      function upcomingCases() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const weekEnd = new Date(today);
+        weekEnd.setDate(today.getDate() + 7);
+        return data.cases.filter((item) => {
+          if (!item.date || item.status === "closed") return false;
+          const date = new Date(item.date + "T00:00:00");
+          return date >= today && date <= weekEnd;
+        }).sort((a, b) => a.date.localeCompare(b.date));
+      }
+      function dateKey(date) {
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+      }
+      function renderCalendar() {
+        const title = new Intl.DateTimeFormat("ar-EG", { month: "long", year: "numeric" }).format(calendarMonth);
+        $("calendarMonthTitle").textContent = title;
+        const firstWeekday = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1).getDay();
+        const daysInMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 0).getDate();
+        const cells = [];
+        ["أحد", "إثن", "ثلا", "أرب", "خمي", "جمع", "سبت"].forEach((day) => cells.push(`<div class="calendar-weekday">${day}</div>`));
+        const totalDays = Math.ceil((firstWeekday + daysInMonth) / 7) * 7;
+        const todayKey = dateKey(new Date());
+        for (let index = 0; index < totalDays; index += 1) {
+          const dayNumber = index - firstWeekday + 1;
+          const date = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), dayNumber);
+          const key = dateKey(date);
+          const inMonth = dayNumber > 0 && dayNumber <= daysInMonth;
+          const count = data.cases.filter((item) => item.status !== "closed" && item.date === key).length;
+          cells.push(`<button class="calendar-day ${inMonth ? "" : "outside"} ${key === todayKey ? "today" : ""} ${key === selectedCalendarDate ? "selected" : ""}" type="button" data-calendar-date="${key}" aria-label="${date.toLocaleDateString("ar-EG", { dateStyle: "full" })}${count ? `، ${count} جلسات` : ""}" ${inMonth ? "" : "tabindex=\"-1\""}><span class="calendar-day-number">${date.getDate()}</span>${count ? `<span class="calendar-day-count">${count} ${count === 1 ? "جلسة" : "جلسات"}</span>` : ""}</button>`);
+        }
+        $("calendarGrid").innerHTML = cells.join("");
+        const selected = data.cases.filter((item) => item.status !== "closed" && item.date === selectedCalendarDate).sort((a, b) => (a.time || "09:00").localeCompare(b.time || "09:00"));
+        const selectedDate = new Date(`${selectedCalendarDate}T12:00:00`);
+        $("calendarDayList").innerHTML = `<h3>جلسات ${selectedDate.toLocaleDateString("ar-EG", { dateStyle: "full" })}</h3>${selected.length ? selected.map((item) => `<div class="activity"><div class="activity-icon">⚖</div><div class="activity-body"><div class="activity-title">${escapeHtml(item.name)} · ${escapeHtml(item.client)}</div><div class="activity-meta">${escapeHtml(item.time || "09:00")} · ${escapeHtml(item.court || "المحكمة غير محددة")}</div></div><button class="text-button" type="button" data-case-detail="${escapeHtml(item.id)}">سجل القضية</button></div>`).join("") : '<div class="calendar-empty">لا توجد جلسات مسجلة في هذا اليوم.</div>'}`;
+      }
+      function formatMoney(value) {
+        return `${new Intl.NumberFormat("ar-EG", { maximumFractionDigits: 2 }).format(Number(value) || 0)} ج.م`;
+      }
+      function caseTransactions(caseId) {
+        return data.transactions.filter((item) => item.caseId === caseId);
+      }
+      function renderCaseDetail(caseId) {
+        const item = data.cases.find((record) => record.id === caseId);
+        if (!item) {
+          $("caseDetailView").innerHTML = '<div class="empty-state">القضية غير موجودة.</div>';
+          return;
+        }
+        const events = data.caseEvents.filter((entry) => entry.caseId === caseId).sort((a, b) => b.createdAt - a.createdAt);
+        const transactions = caseTransactions(caseId);
+        const agreed = transactions.filter((entry) => entry.type === "agreed").reduce((sum, entry) => sum + Number(entry.amount), 0);
+        const paid = transactions.filter((entry) => entry.type === "payment").reduce((sum, entry) => sum + Number(entry.amount), 0);
+        const expenses = transactions.filter((entry) => entry.type === "expense").reduce((sum, entry) => sum + Number(entry.amount), 0);
+        $("caseDetailView").innerHTML = `
+          <div class="feature-toolbar"><div><h2>${escapeHtml(item.name)}</h2><p>${escapeHtml(item.id)} · ${escapeHtml(item.client)} · ${escapeHtml(item.court || "المحكمة غير محددة")}</p></div><div class="case-detail-actions"><button class="secondary-button" type="button" data-edit-case="${escapeHtml(item.id)}">تعديل القضية</button><button class="secondary-button" type="button" data-case-finance>إضافة حركة مالية</button></div></div>
+          <section class="case-finance-summary"><article class="finance-item"><div class="finance-label">الأتعاب المتفق عليها</div><div class="finance-value">${formatMoney(agreed)}</div></article><article class="finance-item"><div class="finance-label">المدفوع · المتبقي</div><div class="finance-value">${formatMoney(paid)} · ${formatMoney(Math.max(0, agreed - paid))}</div></article><article class="finance-item"><div class="finance-label">مصروفات القضية</div><div class="finance-value">${formatMoney(expenses)}</div></article></section>
+          <section class="panel"><div class="panel-head"><div><div class="panel-title">تسجيل متابعة بعد الجلسة</div><div class="panel-caption">دوّن القرار والخطوة التالية؛ ستُضاف تلقائيًا إلى الخط الزمني والمهام.</div></div></div>
+            <form class="form" id="caseSessionForm" data-case-id="${escapeHtml(item.id)}"><div class="form-grid">
+              <div class="field full"><label for="sessionOutcome">ما تم في الجلسة / القرار</label><textarea id="sessionOutcome" maxlength="2000" placeholder="ملخص ما جرى أو القرار الصادر"></textarea></div>
+              <div class="field full"><label for="sessionNextAction">المطلوب قبل الجلسة القادمة</label><input id="sessionNextAction" maxlength="180" placeholder="مثال: إعداد مذكرة أو استكمال مستند"></div>
+              <div class="field"><label for="sessionActionDue">موعد إنجاز المطلوب</label><input id="sessionActionDue" type="date"></div>
+              <div class="field"><label for="sessionNextHearing">موعد الجلسة القادمة</label><input id="sessionNextHearing" type="date" value="${escapeHtml(item.date || "")}"></div>
+              <div class="field"><label for="sessionNextTime">وقت الجلسة القادمة</label><input id="sessionNextTime" type="time" value="${escapeHtml(item.time || "09:00")}"></div>
+            </div><div class="form-actions"><button class="primary-button" id="saveSessionButton" type="submit">حفظ المتابعة</button></div></form>
+          </section>
+          <section class="panel panel-spaced"><div class="panel-head"><div><div class="panel-title">الخط الزمني للقضية</div><div class="panel-caption">الجلسات والقرارات والمهام التي تم توثيقها.</div></div></div><div class="case-timeline">${events.length ? events.map((entry) => `<article class="timeline-entry"><div class="timeline-meta">${escapeHtml(new Date(entry.createdAt).toLocaleString("ar-EG"))}${entry.nextHearingDate ? ` · الجلسة القادمة: ${escapeHtml(formatDate(entry.nextHearingDate))} ${escapeHtml(entry.nextHearingTime || "")}` : ""}</div><h3>${escapeHtml(entry.outcome || "متابعة جلسة")}</h3>${entry.nextAction ? `<p>المطلوب: ${escapeHtml(entry.nextAction)}${entry.actionDue ? ` · قبل ${escapeHtml(formatDate(entry.actionDue))}` : ""}</p>` : ""}</article>`).join("") : '<div class="empty-state">لا توجد متابعات مسجلة. سجّل ملخص أول جلسة أعلاه.</div>'}</div></section>`;
+      }
+      const financeTypeLabels = { agreed: "أتعاب متفق عليها", payment: "دفعة أتعاب", expense: "مصروف قضية" };
+      function fillCaseSelect(selectId) {
+        const select = $(selectId);
+        const previousValue = select.value;
+        select.innerHTML = `<option value="">اختر القضية</option>${data.cases.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.id)} · ${escapeHtml(item.name)} — ${escapeHtml(item.client)}</option>`).join("")}`;
+        select.disabled = data.cases.length === 0;
+        if (data.cases.some((item) => item.id === previousValue)) select.value = previousValue;
+      }
+      function renderFinance() {
+        fillCaseSelect("financeCase");
+        if (!$("financeDate").value) $("financeDate").value = dateKey(new Date());
+        const agreed = data.transactions.filter((item) => item.type === "agreed").reduce((sum, item) => sum + Number(item.amount), 0);
+        const paid = data.transactions.filter((item) => item.type === "payment").reduce((sum, item) => sum + Number(item.amount), 0);
+        const expenses = data.transactions.filter((item) => item.type === "expense").reduce((sum, item) => sum + Number(item.amount), 0);
+        $("financeSummary").innerHTML = [["أتعاب متفق عليها", agreed], ["دفعات محصلة", paid], ["أتعاب متبقية", Math.max(0, agreed - paid)], ["مصروفات مسجلة", expenses]].map(([label, amount]) => `<article class="finance-item"><div class="finance-label">${label}</div><div class="finance-value">${formatMoney(amount)}</div></article>`).join("");
+        const rows = [...data.transactions].sort((a, b) => b.date.localeCompare(a.date));
+        $("financeRows").innerHTML = rows.length ? rows.map((entry) => {
+          const caseItem = data.cases.find((item) => item.id === entry.caseId);
+          return `<tr><td>${formatDate(entry.date)}</td><td>${escapeHtml(caseItem ? `${caseItem.id} · ${caseItem.name} · ${caseItem.client}` : "قضية غير موجودة")}</td><td>${escapeHtml(financeTypeLabels[entry.type] || "حركة مالية")}</td><td>${escapeHtml(entry.description)}</td><td>${formatMoney(entry.amount)}</td><td>${entry.receiptDocumentId ? `<button class="text-button" type="button" data-finance-receipt="${escapeHtml(entry.receiptDocumentId)}">تنزيل الإيصال</button>` : "—"}</td></tr>`;
+        }).join("") : '<tr><td colspan="6">لا توجد حركات مالية مسجلة.</td></tr>';
+      }
+      function fillTemplateCaseOptions() {
+        fillCaseSelect("templateCase");
+        if (!data.cases.some((item) => item.id === $("templateCase").value) && data.cases.length) $("templateCase").value = data.cases[0].id;
+      }
+      function populateTemplate() {
+        const item = data.cases.find((record) => record.id === $("templateCase").value) || data.cases[0];
+        if (!item) {
+          $("templateSubject").value = "";
+          $("templateBody").value = "أضف قضية أولًا لإنشاء مسودة مرتبطة بها.";
+          renderTemplatePreview();
+          return;
+        }
+        $("templateCase").value = item.id;
+        const kind = $("templateKind").value;
+        const templates = {
+          session: {
+            subject: `محضر متابعة جلسة — ${item.id}`,
+            body: `بيانات القضية: ${item.name}\nرقم القضية: ${item.id}\nالموكل: ${item.client}\nالمحكمة: ${item.court || "غير محددة"}\n\nتاريخ الجلسة: ${item.date ? formatDate(item.date) : "يُستكمل"}\nملخص ما تم في الجلسة:\n\nالقرار أو الإجراء:\n\nالمطلوب قبل الجلسة القادمة:\n\nموعد المتابعة:`
+          },
+          notice: {
+            subject: `مسودة إخطار / مطالبة — ${item.client}`,
+            body: `السيد / ${item.client}\n\nالموضوع: ${item.name}\n\nتحية طيبة وبعد،\n\nبالإشارة إلى الموضوع أعلاه، نحيطكم علمًا بالآتي:\n\n[تُستكمل الوقائع والطلبات بواسطة المحامي بعد مراجعة المستندات]\n\nوتفضلوا بقبول فائق الاحترام،\n\nالمحامي / سامح عمار\nالتاريخ: ${new Date().toLocaleDateString("ar-EG")}`
+          },
+          memo: {
+            subject: `مذكرة متابعة داخلية — ${item.id}`,
+            body: `القضية: ${item.name}\nرقم القضية: ${item.id}\nالموكل: ${item.client}\nالمحكمة: ${item.court || "غير محددة"}\n\nملخص الموقف:\n\nالإجراءات المطلوبة:\n\nالمستندات الناقصة:\n\nموعد المراجعة:\n\nملاحظات داخلية:`
+          }
+        };
+        $("templateSubject").value = templates[kind].subject;
+        $("templateBody").value = templates[kind].body;
+        renderTemplatePreview();
+      }
+      function templateDocumentHtml() {
+        return `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${escapeHtml($("templateSubject").value)}</title><style>body{font-family:Tahoma,Arial,sans-serif;direction:rtl;margin:2.5cm;color:#172b3b;line-height:2}h1{font-size:20px;text-align:center;margin-bottom:28px}.content{white-space:pre-wrap}</style></head><body><h1>${escapeHtml($("templateSubject").value)}</h1><div class="content">${escapeHtml($("templateBody").value)}</div></body></html>`;
+      }
+      function renderTemplatePreview() {
+        $("templatePreview").innerHTML = `<strong>${escapeHtml($("templateSubject").value || "عنوان المسودة")}</strong><br><br>${escapeHtml($("templateBody").value || "نص المسودة سيظهر هنا.")}`;
+      }
+      let pdfLibraryPromise;
+      const documentTextCache = new Map();
+      function loadPdfLibrary() {
+        if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+        if (!pdfLibraryPromise) {
+          pdfLibraryPromise = new Promise((resolve, reject) => {
+            const script = document.createElement("script");
+            script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+            script.onload = () => {
+              if (!window.pdfjsLib) {
+                reject(new Error("لم تُحمّل مكتبة قراءة PDF بشكل صحيح."));
+                return;
+              }
+              window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+              resolve(window.pdfjsLib);
+            };
+            script.onerror = () => reject(new Error("تعذر تحميل قارئ PDF. تحقق من اتصال الإنترنت ثم أعد المحاولة."));
+            document.head.append(script);
+          }).catch((error) => {
+            pdfLibraryPromise = null;
+            throw error;
+          });
+        }
+        return pdfLibraryPromise;
+      }
+      async function extractDocxText(bytes) {
+        const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+        let endOffset = -1;
+        for (let offset = bytes.length - 22; offset >= Math.max(0, bytes.length - 65557); offset -= 1) {
+          if (view.getUint32(offset, true) === 0x06054b50) {
+            endOffset = offset;
+            break;
+          }
+        }
+        if (endOffset < 0) throw new Error("بنية ملف DOCX غير صالحة.");
+        const entryCount = view.getUint16(endOffset + 10, true);
+        let cursor = view.getUint32(endOffset + 16, true);
+        const decoder = new TextDecoder();
+        let xmlBytes = null;
+        for (let index = 0; index < entryCount; index += 1) {
+          if (view.getUint32(cursor, true) !== 0x02014b50) throw new Error("تعذر قراءة فهرس ملف DOCX.");
+          const method = view.getUint16(cursor + 10, true);
+          const compressedSize = view.getUint32(cursor + 20, true);
+          const fileNameLength = view.getUint16(cursor + 28, true);
+          const extraLength = view.getUint16(cursor + 30, true);
+          const commentLength = view.getUint16(cursor + 32, true);
+          const localOffset = view.getUint32(cursor + 42, true);
+          const fileName = decoder.decode(bytes.subarray(cursor + 46, cursor + 46 + fileNameLength));
+          if (fileName === "word/document.xml") {
+            const localNameLength = view.getUint16(localOffset + 26, true);
+            const localExtraLength = view.getUint16(localOffset + 28, true);
+            const contentStart = localOffset + 30 + localNameLength + localExtraLength;
+            const compressed = bytes.subarray(contentStart, contentStart + compressedSize);
+            if (method === 0) xmlBytes = compressed;
+            else if (method === 8 && "DecompressionStream" in window) {
+              const stream = new Blob([compressed]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+              xmlBytes = new Uint8Array(await new Response(stream).arrayBuffer());
+            } else throw new Error("صيغة ضغط ملف DOCX غير مدعومة على هذا المتصفح.");
+            break;
+          }
+          cursor += 46 + fileNameLength + extraLength + commentLength;
+        }
+        if (!xmlBytes) throw new Error("لم يُعثر على نص المستند داخل ملف DOCX.");
+        const xml = new DOMParser().parseFromString(decoder.decode(xmlBytes), "application/xml");
+        if (xml.querySelector("parsererror")) throw new Error("تعذر تحليل نص ملف DOCX.");
+        return [...xml.getElementsByTagNameNS("*", "t")].map((node) => node.textContent).join(" ");
+      }
+      async function extractSearchableDocumentText(documentRecord) {
+        const cached = documentTextCache.get(documentRecord.id);
+        if (cached) return cached;
+        const blob = await storage.ref(documentRecord.storagePath).getBlob();
+        let text;
+        if (documentRecord.extension === "txt") {
+          text = await blob.text();
+        } else if (documentRecord.extension === "docx") {
+          text = await extractDocxText(new Uint8Array(await blob.arrayBuffer()));
+        } else if (documentRecord.extension === "pdf") {
+          const pdfjs = await loadPdfLibrary();
+          const pdf = await pdfjs.getDocument({ data: new Uint8Array(await blob.arrayBuffer()), isEvalSupported: false }).promise;
+          const pages = [];
+          for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+            const page = await pdf.getPage(pageNumber);
+            const content = await page.getTextContent();
+            pages.push(content.items.map((item) => item.str || "").join(" "));
+          }
+          text = pages.join("\n");
+          await pdf.destroy();
+        } else {
+          throw new Error("نوع الملف لا يدعم البحث النصي.");
+        }
+        const normalizedText = text.toLocaleLowerCase("ar");
+        documentTextCache.set(documentRecord.id, normalizedText);
+        return normalizedText;
+      }
+      async function searchDocumentContents(query) {
+        const input = query.trim().toLocaleLowerCase("ar");
+        const records = [];
+        for (const client of data.clients) {
+          const documents = await getClientDocuments(client.id);
+          records.push(...documents.map((item) => ({ ...item, clientId: client.id, clientName: client.name })));
+        }
+        const matches = [];
+        const failures = [];
+        let scanned = 0;
+        const searchable = records.filter((item) => ["txt", "pdf", "docx"].includes(item.extension));
+        for (const record of searchable) {
+          try {
+            const text = await extractSearchableDocumentText(record);
+            const position = text.indexOf(input);
+            if (position >= 0) {
+              matches.push({
+                ...record,
+                snippet: text.slice(Math.max(0, position - 65), Math.min(text.length, position + input.length + 90)).replace(/\s+/g, " ")
+              });
+            }
+          } catch (error) {
+            console.error(`Document text extraction failed for ${record.name}:`, error);
+            failures.push(record.name);
+          }
+          scanned += 1;
+          $("documentSearchResults").innerHTML = `<div class="empty-state">جارٍ فحص ${scanned} من ${searchable.length} مستندات نصية...</div>`;
+          await new Promise((resolve) => requestAnimationFrame(resolve));
+        }
+        const unsupportedCount = records.length - searchable.length;
+        const resultMarkup = matches.map((item) => `<button class="global-result" type="button" data-document-search-client="${escapeHtml(item.clientId)}" data-document-search-id="${escapeHtml(item.id)}"><span><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.clientName)} · ${escapeHtml(item.category || "مستند")}</small><small>${escapeHtml(item.snippet)}</small></span><span class="result-kind">مستند</span></button>`).join("");
+        const notes = [];
+        if (unsupportedCount) notes.push(`${unsupportedCount} ملفات غير نصية تم تخطيها`);
+        if (failures.length) notes.push(`تعذر استخراج النص من ${failures.length} ملف`);
+        $("documentSearchResults").innerHTML = `${resultMarkup || '<div class="empty-state">لا توجد نتائج مطابقة في المستندات النصية التي أمكن فحصها.</div>'}<div class="document-search-note">تم فحص ${scanned} ملفًا.${notes.length ? ` ${notes.join(" · ")}.` : ""}</div>`;
+      }
+      function renderGlobalSearch() {
+        const query = $("globalSearchInput").value.trim().toLocaleLowerCase("ar");
+        const results = $("globalSearchResults");
+        if (!query) {
+          results.innerHTML = '<div class="empty-state">ابدأ بكتابة اسم أو رقم للبحث.</div>';
+          return;
+        }
+        const caseResults = data.cases.filter((item) => `${item.id} ${item.name} ${item.client} ${item.type} ${item.court} ${item.notes || ""}`.toLocaleLowerCase("ar").includes(query))
+          .map((item) => `<button class="global-result" type="button" data-global-case="${escapeHtml(item.id)}"><span><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.id)} · ${escapeHtml(item.client)} · ${statusLabels[item.status] || "جارية"}</small></span><span class="result-kind">قضية</span></button>`);
+        const clientResults = data.clients.filter((client) => {
+          const linkedCases = clientCases(client).map((item) => `${item.id} ${item.name} ${item.notes || ""}`).join(" ");
+          const documents = (client.documents || []).map((item) => item.name).join(" ");
+          const categorizedDocuments = (client.documents || []).map((item) => `${item.name} ${item.category || ""}`).join(" ");
+          return `${client.name} ${client.phone || ""} ${client.email || ""} ${client.notes || ""} ${linkedCases} ${documents} ${categorizedDocuments}`.toLocaleLowerCase("ar").includes(query);
+        }).map((client) => `<button class="global-result" type="button" data-global-client="${escapeHtml(client.id)}"><span><strong>${escapeHtml(client.name)}</strong><small>${escapeHtml(client.phone || client.email || "ملف عميل")}</small></span><span class="result-kind">عميل</span></button>`);
+        const combined = [...caseResults, ...clientResults];
+        results.innerHTML = combined.length
+          ? combined.join("")
+          : '<div class="empty-state">لا توجد نتائج مطابقة. جرّب كلمة بحث أخرى.</div>';
+      }
+      function renderReport() {
+        const agreedFees = data.transactions.filter((item) => item.type === "agreed").reduce((sum, item) => sum + Number(item.amount), 0);
+        const collectedFees = data.transactions.filter((item) => item.type === "payment").reduce((sum, item) => sum + Number(item.amount), 0);
+        const caseExpenses = data.transactions.filter((item) => item.type === "expense").reduce((sum, item) => sum + Number(item.amount), 0);
+        const summary = [
+          ["إجمالي القضايا", data.cases.length],
+          ["القضايا الجارية", data.cases.filter((item) => item.status === "active").length],
+          ["الجلسات خلال أسبوع", upcomingCases().length],
+          ["إجمالي العملاء", data.clients.length],
+          ["الأتعاب المتفق عليها", formatMoney(agreedFees)],
+          ["الدفعات المحصلة", formatMoney(collectedFees)],
+          ["مصروفات القضايا", formatMoney(caseExpenses)]
+        ];
+        $("reportSummary").innerHTML = summary.map(([label, value]) => `<article class="stat-card"><div class="stat-top">${label}</div><div class="stat-value">${value}</div></article>`).join("");
+        const sortedCases = [...data.cases].sort((a, b) => (a.date || "9999-99-99").localeCompare(b.date || "9999-99-99"));
+        $("reportCasesBody").innerHTML = sortedCases.length ? sortedCases.map((item) => `<tr><td>${escapeHtml(item.id)}</td><td>${escapeHtml(item.name)}</td><td>${escapeHtml(item.client)}</td><td>${escapeHtml(item.type || "أخرى")}</td><td>${statusLabels[item.status] || "جارية"}</td><td>${item.date ? `${formatDate(item.date)} · ${escapeHtml(item.time || "09:00")}` : "غير محددة"}</td><td>${escapeHtml(item.court || "—")}</td></tr>`).join("") : '<tr><td colspan="7">لا توجد قضايا مسجلة.</td></tr>';
+      }
+      function exportReportCsv() {
+        const summary = [
+          ["ملخص المكتب", ""],
+          ["تاريخ التقرير", dateKey(new Date())],
+          ["إجمالي القضايا", data.cases.length],
+          ["القضايا الجارية", data.cases.filter((item) => item.status === "active").length],
+          ["الجلسات خلال أسبوع", upcomingCases().length],
+          ["إجمالي العملاء", data.clients.length],
+          ["إجمالي الأتعاب المتفق عليها بالجنيه", data.transactions.filter((item) => item.type === "agreed").reduce((sum, item) => sum + Number(item.amount), 0)],
+          ["إجمالي الدفعات المحصلة بالجنيه", data.transactions.filter((item) => item.type === "payment").reduce((sum, item) => sum + Number(item.amount), 0)],
+          ["إجمالي مصروفات القضايا بالجنيه", data.transactions.filter((item) => item.type === "expense").reduce((sum, item) => sum + Number(item.amount), 0)],
+          [],
+          ["تفاصيل القضايا"]
+        ];
+        const rows = [
+          ...summary,
+          ["رقم القضية", "اسم القضية", "العميل", "نوع القضية", "الحالة", "تاريخ الجلسة", "وقت الجلسة", "المحكمة"],
+          ...[...data.cases].sort((a, b) => (a.date || "9999-99-99").localeCompare(b.date || "9999-99-99")).map((item) => [
+            item.id, item.name, item.client, item.type || "أخرى", statusLabels[item.status] || "جارية",
+            item.date || "", item.time || "", item.court || ""
+          ]),
+          [],
+          ["الحركات المالية"],
+          ["التاريخ", "رقم القضية", "نوع الحركة", "البيان", "المبلغ بالجنيه"],
+          ...data.transactions.map((entry) => [entry.date, entry.caseId, financeTypeLabels[entry.type] || "", entry.description, entry.amount])
+        ];
+        const csvValue = (value) => {
+          const text = String(value ?? "");
+          const safeText = /^\s*[=+\-@]/.test(text) ? `'${text}` : text;
+          return `"${safeText.replace(/"/g, '""')}"`;
+        };
+        const csv = `\uFEFF${rows.map((row) => row.map(csvValue).join(",")).join("\r\n")}`;
+        const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `sameh-office-report-${dateKey(new Date())}.csv`;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+      function showToast(message) {
+        const toast = $("toast");
+        toast.textContent = message;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
+      }
+      let installPromptEvent = null;
+      const installButtons = document.querySelectorAll(".install-app-button");
+      const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+      const isIosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent)
+        || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      const isIosSafari = isIosDevice
+        && /Safari/.test(navigator.userAgent)
+        && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(navigator.userAgent);
+      function updateInstallControls() {
+        installButtons.forEach((button) => { button.hidden = isStandalone || !installPromptEvent; });
+        $("authInstallHelp").hidden = isStandalone || !isIosSafari;
+        $("officeInstallButton").hidden = isStandalone || (!installPromptEvent && !isIosSafari);
+      }
+      async function requestInstall() {
+        if (!installPromptEvent) {
+          showToast("في Safari، اضغط «مشاركة» ثم اختر «إضافة إلى الشاشة الرئيسية».");
+          return;
+        }
+        try {
+          const promptEvent = installPromptEvent;
+          await promptEvent.prompt();
+          await promptEvent.userChoice;
+          installPromptEvent = null;
+          updateInstallControls();
+        } catch (error) {
+          console.error("Failed to show app install prompt:", error);
+          showToast("تعذر فتح نافذة التثبيت. استخدم قائمة المتصفح لإضافة التطبيق.");
+        }
+      }
+      window.addEventListener("beforeinstallprompt", (event) => {
+        event.preventDefault();
+        installPromptEvent = event;
+        updateInstallControls();
+      });
+      window.addEventListener("appinstalled", () => {
+        installPromptEvent = null;
+        updateInstallControls();
+        showToast("تم تثبيت بوابة المكتب على جهازك.");
+      });
+      installButtons.forEach((button) => {
+        button.addEventListener("click", requestInstall);
+      });
+      updateInstallControls();
+      function renderStats() {
+        $("totalCases").textContent = data.cases.length;
+        $("activeCases").textContent = data.cases.filter((item) => item.status === "active").length;
+        $("upcomingCount").textContent = upcomingCases().length;
+        $("openTasks").textContent = data.tasks.filter((task) => !task.done).length;
+        $("navCases").textContent = data.cases.length;
+        $("navTasks").textContent = data.tasks.filter((task) => !task.done).length;
+        $("navClients").textContent = data.clients.length;
+      }
+      function renderCaseAttachmentQueue() {
+        $("caseAttachmentQueue").innerHTML = stagedCaseFiles.map((item, index) => `
+          <div class="attachment-item">
+            <div class="attachment-name">${escapeHtml(item.file.name)}<span class="attachment-size">${(item.file.size / 1024).toFixed(0)} كيلوبايت</span></div>
+            <select class="attachment-category" data-attachment-category="${index}" aria-label="نوع المرفق ${escapeHtml(item.file.name)}">
+              ${documentCategories.map((category) => `<option value="${escapeHtml(category)}" ${item.category === category ? "selected" : ""}>${escapeHtml(category)}</option>`).join("")}
+            </select>
+            <button class="attachment-remove" type="button" data-remove-attachment="${index}" aria-label="إزالة ${escapeHtml(item.file.name)}">×</button>
+          </div>`).join("");
+        $("caseDocumentsHint").textContent = stagedCaseFiles.length
+          ? `تم اختيار ${stagedCaseFiles.length} ${stagedCaseFiles.length === 1 ? "مرفق" : "مرفقات"}. حدّد نوع كل ملف ثم احفظ القضية لرفعها.`
+          : "اختر عدة ملفات، وحدد نوع كل مرفق قبل حفظ القضية ورفعها. الحد الأقصى 10 ميجابايت لكل ملف.";
+      }
+      function renderCases() {
+        const search = $("caseSearch").value.trim().toLocaleLowerCase("ar");
+        const status = $("statusFilter").value;
+        const visible = data.cases.filter((item) => {
+          const matchesText = `${item.id} ${item.name} ${item.client} ${item.type}`.toLocaleLowerCase("ar").includes(search);
+          return matchesText && (status === "all" || item.status === status);
+        });
+        $("casesBody").innerHTML = visible.map((item) => `
+          <tr>
+            <td><span class="case-id">${escapeHtml(item.id)}</span></td>
+            <td><span class="case-title">${escapeHtml(item.name)}</span><span class="case-client">${escapeHtml(item.client)}</span></td>
+            <td>${escapeHtml(item.type || "أخرى")}</td>
+            <td>${formatDate(item.date)}${item.date ? ` · ${escapeHtml(item.time || "09:00")}` : ""}</td>
+            <td><span class="status status-${Object.hasOwn(statusLabels, item.status) ? item.status : "active"}">${statusLabels[item.status] || "جارية"}</span></td>
+            <td><span class="case-open-actions"><button class="text-button" type="button" data-case-detail="${escapeHtml(item.id)}">السجل</button><button class="text-button" type="button" data-edit-case="${escapeHtml(item.id)}">تعديل</button></span></td>
+          </tr>`).join("");
+        $("casesEmpty").hidden = visible.length > 0;
+        $("casesBody").closest("table").hidden = visible.length === 0;
+      }
+      function renderAppointments() {
+        const appointments = upcomingCases().slice(0, 3);
+        const list = $("appointmentsList");
+        $("notificationDot").classList.toggle("visible", nextCaseReminders().length > 0);
+        if (!appointments.length) {
+          list.innerHTML = '<div class="empty-state">لا توجد جلسات خلال الأيام السبعة القادمة.</div>';
+          return;
+        }
+        list.innerHTML = appointments.map((item) => {
+          const date = caseDateTime(item);
+          const due = caseDateTime(item)?.getTime() - Date.now();
+          const alert = due <= 60 * 60 * 1000 ? "تنبيه: الجلسة خلال ساعة" : due <= 24 * 60 * 60 * 1000 ? "تذكير: الجلسة خلال 24 ساعة" : "";
+          return `<div class="activity"><div class="activity-icon">⚖</div><div class="activity-body"><div class="activity-title">${escapeHtml(item.name)}</div><div class="activity-meta">${weekdayNames[date.getDay()]}، ${formatDate(item.date)} · ${escapeHtml(item.time || "09:00")} · ${escapeHtml(item.court || "المحكمة غير محددة")}${alert ? ` · ${alert}` : ""}</div></div></div>`;
+        }).join("");
+      }
+      function renderTasks() {
+        const list = $("taskList");
+        if (!data.tasks.length) {
+          list.innerHTML = '<div class="empty-state">لا توجد مهام بعد. أضف مهمتك الأولى.</div>';
+          return;
+        }
+        list.innerHTML = data.tasks.map((task) => {
+          const caseItem = data.cases.find((item) => item.id === task.caseId);
+          const taskDetails = [task.date || "بدون موعد", caseItem ? `القضية ${caseItem.id}` : ""].filter(Boolean).join(" · ");
+          return `<label class="task"><input type="checkbox" data-task="${escapeHtml(task.id)}" ${task.done ? "checked" : ""} aria-label="إنجاز ${escapeHtml(task.title)}"><span class="task-copy ${task.done ? "done" : ""}">${escapeHtml(task.title)}<span class="task-date">${escapeHtml(taskDetails)}</span></span></label>`;
+        }).join("");
+      }
+      function renderClients() {
+        const query = $("clientSearch").value.trim().toLocaleLowerCase("ar");
+        const clients = data.clients.filter((client) => `${client.name} ${client.phone} ${client.email}`.toLocaleLowerCase("ar").includes(query));
+        $("clientGrid").innerHTML = clients.map((client) => `
+          <button class="client-card" type="button" data-open-client="${escapeHtml(client.id)}">
+            <span class="client-card-top"><span class="client-avatar">${escapeHtml(client.name.trim().slice(0, 1))}</span><span><span class="client-card-name">${escapeHtml(client.name)}</span><span class="client-card-meta">${escapeHtml(client.phone || client.email || "لا توجد بيانات تواصل")}</span></span></span>
+            <span class="client-card-foot"><span>${clientCases(client).length} ${clientCases(client).length === 1 ? "قضية" : "قضايا"}</span><span>فتح الملف ←</span></span>
+          </button>`).join("");
+        $("clientsEmpty").hidden = clients.length > 0;
+      }
+      async function renderClientProfile() {
+        const client = data.clients.find((item) => item.id === selectedClientId);
+        if (!client) {
+          selectedClientId = null;
+          $("clientProfile").hidden = true;
+          $("clientsListView").hidden = false;
+          $("clientGrid").hidden = false;
+          renderClients();
+          return;
+        }
+        $("clientsListView").hidden = true;
+        $("clientGrid").hidden = true;
+        $("clientsEmpty").hidden = true;
+        const profile = $("clientProfile");
+        profile.hidden = false;
+        profile.innerHTML = `<div class="client-profile-head"><div class="client-avatar">${escapeHtml(client.name.trim().slice(0, 1))}</div><div><h2>${escapeHtml(client.name)}</h2><p>ملف العميل · أُضيف إلى سجل المكتب</p></div><button class="secondary-button client-back" type="button" data-client-back>العودة للعملاء</button></div>
+          <div class="client-info-grid">
+            <div><div class="client-info-label">رقم الهاتف</div><div class="client-info-value">${escapeHtml(client.phone || "غير مسجل")}</div></div>
+            <div><div class="client-info-label">البريد الإلكتروني</div><div class="client-info-value">${escapeHtml(client.email || "غير مسجل")}</div></div>
+            <div><div class="client-info-label">عدد القضايا</div><div class="client-info-value">${clientCases(client).length}</div></div>
+            ${client.notes ? `<div class="client-notes"><div class="client-info-label">ملاحظات</div><div class="client-info-value">${escapeHtml(client.notes)}</div></div>` : ""}
+          </div>
+          <div class="client-profile-section"><div class="client-section-head"><div><h3>مستندات العميل</h3><p>ارفع واحفظ مستندات العميل الخاصة بهذا الملف.</p></div><button class="primary-button upload-button" type="button" data-upload-client="${escapeHtml(client.id)}">＋ رفع مستند</button></div><input id="profileDocumentInput" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt" hidden><div class="document-list" id="documentList"><div class="empty-state">جارٍ تحميل المستندات...</div></div><p class="upload-note">الصيغ المدعومة: PDF وWord والصور وTXT · الحد الأقصى للملف 10 ميجابايت. تُخزّن المستندات في Firebase Storage الخاص بالمكتب.</p></div>
+          <div class="client-profile-section"><div class="client-section-head"><div><h3>قضايا العميل</h3><p>القضايا المسجلة باسم هذا العميل.</p></div></div><div id="clientCasesList"></div></div>`;
+        const cases = clientCases(client);
+        $("clientCasesList").innerHTML = cases.length ? cases.map((item) => `<div class="client-case-row"><span><strong>${escapeHtml(item.name)}</strong> <span class="case-id">${escapeHtml(item.id)}</span></span><span>${escapeHtml(statusLabels[item.status] || "جارية")} · ${formatDate(item.date)}</span></div>`).join("") : '<div class="empty-state">لا توجد قضايا مرتبطة بهذا العميل حتى الآن.</div>';
+        try {
+          const documents = await getClientDocuments(client.id);
+          if (selectedClientId !== client.id || $("documentList") === null) return;
+          $("documentList").innerHTML = documents.length ? documents.map((document) => `
+            <div class="document-row"><div class="document-icon">${escapeHtml(document.extension.toUpperCase())}</div><div class="document-copy"><div class="document-name">${escapeHtml(document.name)}</div><span class="document-category">${escapeHtml(document.category || "أخرى")}</span><div class="document-meta">${(document.size / 1024).toFixed(0)} كيلوبايت · أُضيف ${new Date(document.addedAt).toLocaleDateString("ar-EG")}</div></div><div class="document-actions"><button class="document-action" type="button" data-download-document="${escapeHtml(document.id)}">تنزيل</button><button class="document-action delete" type="button" data-delete-document="${escapeHtml(document.id)}">حذف</button></div></div>`).join("") : '<div class="empty-state">لا توجد مستندات مرفقة بهذا الملف بعد.</div>';
+        } catch (error) {
+          console.error("Failed to load client documents:", error);
+          $("documentList").innerHTML = '<div class="empty-state">تعذر تحميل المستندات. تحقق من اتصال Firebase وصلاحيات التخزين.</div>';
+        }
+      }
+      function render() {
+        renderStats();
+        renderCases();
+        renderAppointments();
+        renderTasks();
+        renderClients();
+        renderCalendar();
+        renderGlobalSearch();
+        renderReport();
+        renderFinance();
+      }
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+      }
+      function openModal(caseId = null) {
+        editingCaseId = caseId;
+        const existing = caseId ? data.cases.find((item) => item.id === caseId) : null;
+        $("modalTitle").textContent = existing ? "تعديل القضية وموعدها" : "إضافة قضية جديدة";
+        $("caseForm").querySelector('[type="submit"]').textContent = existing ? "حفظ التعديلات" : "حفظ القضية";
+        $("caseDocuments").value = "";
+        stagedCaseFiles = [];
+        renderCaseAttachmentQueue();
+        if (existing) {
+          $("caseName").value = existing.name;
+          $("clientName").value = existing.client;
+          $("caseType").value = existing.type || "أخرى";
+          $("caseStatus").value = existing.status || "active";
+          $("caseDate").value = existing.date || "";
+          $("caseTime").value = existing.time || "09:00";
+          $("courtName").value = existing.court || "";
+          $("caseNotes").value = existing.notes || "";
+        }
+        $("caseModal").classList.add("open");
+        (existing ? $("caseDate") : $("caseName")).focus();
+      }
+      function closeModal() {
+        $("caseModal").classList.remove("open");
+        $("caseForm").reset();
+        stagedCaseFiles = [];
+        renderCaseAttachmentQueue();
+        $("saveCaseButton").disabled = false;
+        $("saveCaseButton").textContent = "حفظ القضية";
+        editingCaseId = null;
+      }
+      function openClientModal() {
+        $("clientModal").classList.add("open");
+        $("newClientName").focus();
+      }
+      function closeClientModal() {
+        $("clientModal").classList.remove("open");
+        $("clientForm").reset();
+      }
+      function setPage(page) {
+        currentPage = page;
+        $("currentPage").textContent = page;
+        const activePage = page === "تفاصيل القضية" ? "القضايا" : page;
+        document.querySelectorAll(".nav-link").forEach((link) => link.classList.toggle("active", link.dataset.page === activePage));
+        $("sidebar").classList.remove("open");
+        $("dashboardView").hidden = !["الرئيسية", "القضايا", "المهام"].includes(page);
+        $("clientsView").hidden = page !== "العملاء";
+        $("calendarView").hidden = page !== "المواعيد";
+        $("globalSearchView").hidden = page !== "البحث";
+        $("reportsView").hidden = page !== "التقارير";
+        $("caseDetailView").hidden = page !== "تفاصيل القضية";
+        $("documentSearchView").hidden = page !== "بحث المستندات";
+        $("financeView").hidden = page !== "الحسابات";
+        $("templatesView").hidden = page !== "النماذج";
+        if (page !== "العملاء") {
+          selectedClientId = null;
+          $("clientProfile").hidden = true;
+          $("clientsListView").hidden = false;
+          $("clientGrid").hidden = false;
+        }
+        if (page === "القضايا") {
+          $("casesTitle").textContent = "كل القضايا";
+          $("casesSection").scrollIntoView({ behavior: "smooth", block: "start" });
+        } else if (page === "المهام") {
+          $("tasksSection").scrollIntoView({ behavior: "smooth", block: "start" });
+        } else if (page === "المواعيد") {
+          renderCalendar();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else if (page === "البحث") {
+          renderGlobalSearch();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else if (page === "التقارير") {
+          renderReport();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else if (page === "بحث المستندات") {
+          $("documentSearchInput").focus();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else if (page === "الحسابات") {
+          renderFinance();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else if (page === "النماذج") {
+          fillTemplateCaseOptions();
+          populateTemplate();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else if (page === "تفاصيل القضية") {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else if (page === "العملاء") {
+          selectedClientId = null;
+          $("clientSearch").value = "";
+          renderClients();
+          $("clientProfile").hidden = true;
+          $("clientsListView").hidden = false;
+          $("clientGrid").hidden = false;
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          $("casesTitle").textContent = "أحدث القضايا";
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      }
+
+      const dateNow = new Date();
+      $("today").textContent = `${weekdayNames[dateNow.getDay()]}، ${dateNow.getDate()} ${monthNames[dateNow.getMonth()]} ${dateNow.getFullYear()}`;
+      function authErrorMessage(error) {
+        const messages = {
+          "auth/invalid-credential": "بيانات الدخول غير صحيحة.",
+          "auth/invalid-email": "صيغة البريد الإلكتروني غير صحيحة.",
+          "auth/too-many-requests": "محاولات كثيرة. انتظر قليلًا ثم أعد المحاولة.",
+          "auth/network-request-failed": "تعذر الاتصال. تحقق من الإنترنت."
+        };
+        return messages[error.code] || "تعذر تسجيل الدخول أو تحميل بيانات المكتب. تحقق من إعداد Firebase وحاول مجددًا.";
+      }
+      async function enableNotifications() {
+        if (!("Notification" in window) || !("serviceWorker" in navigator) || !await firebase.messaging.isSupported()) {
+          showToast("المتصفح لا يدعم إشعارات الويب على هذا الجهاز.");
+          return;
+        }
+        try {
+          const permission = await Notification.requestPermission();
+          if (permission !== "granted") {
+            showToast("لم يتم السماح بالإشعارات. فعّلها من إعدادات المتصفح.");
+            return;
+          }
+          const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+          messaging = firebase.messaging();
+          const token = await messaging.getToken({ vapidKey: window.FIREBASE_VAPID_KEY, serviceWorkerRegistration: registration });
+          if (!token) throw new Error("تعذر إنشاء رمز إشعارات لهذا المتصفح.");
+          await officeRef().collection("devices").doc(encodeURIComponent(token)).set({ token, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+          messaging.onMessage(() => {
+            $("notificationDot").classList.add("visible");
+              showToast("لديك تذكير بجلسة أو مهمة متابعة قريبة. سجّل الدخول لمراجعتها.");
+          });
+          $("enableNotificationsButton").textContent = "التنبيهات مفعّلة";
+          showToast("تم تفعيل تنبيهات الجلسات لهذا المتصفح.");
+        } catch (error) {
+          console.error("Failed to enable push notifications:", error);
+          showToast("تعذر تفعيل التنبيهات. تحقق من VAPID key وإعدادات Firebase.");
+        }
+      }
+      async function showOffice(user) {
+        $("authProgress").textContent = "جارٍ تحميل ملفات المكتب...";
+        try {
+          await loadOfficeData(user);
+          render();
+          $("officeApp").hidden = false;
+          $("authScreen").hidden = true;
+          $("authProgress").textContent = "";
+          $("enableNotificationsButton").textContent = "تفعيل التنبيهات";
+          $("importLegacyButton").hidden = false;
+          document.querySelector(".page-note").textContent = "تُحمى ملفات المكتب بحساب Firebase، وتُحفظ في مشروعك السحابي وفق قواعد الوصول المنشورة.";
+          if (!initialized) {
+            initialized = true;
+            bindOfficeEvents();
+          }
+        } catch (error) {
+          activeUser = null;
+          console.error("Failed to load office data:", error);
+          $("authError").textContent = "تعذر الوصول إلى بيانات المكتب. لم تُعرض البيانات. تحقق من قواعد Firestore والاتصال ثم أعد المحاولة.";
+          $("authProgress").textContent = "";
+          if (auth) await auth.signOut();
+        }
+      }
+      function initializeFirebase() {
+        const config = window.FIREBASE_CONFIG;
+        const requiredConfigKeys = ["apiKey", "authDomain", "projectId", "storageBucket", "messagingSenderId", "appId"];
+        if (!config || requiredConfigKeys.some((key) => typeof config[key] !== "string" || !config[key].trim() || config[key].includes("REPLACE_WITH"))) {
+          console.error("Firebase is not configured. Update firebase-config.js before using the office portal.");
+          $("authProgress").textContent = "الخدمة غير متاحة حاليًا. يُرجى التواصل مع مسؤول النظام.";
+          $("loginButton").disabled = true;
+          return;
+        }
+        try {
+          firebase.initializeApp(config);
+          auth = firebase.auth();
+          firestore = firebase.firestore();
+          storage = firebase.storage();
+          auth.onAuthStateChanged((user) => {
+            if (user) {
+              showOffice(user);
+            } else {
+              activeUser = null;
+              data = null;
+            documentTextCache.clear();
+            $("documentSearchResults").innerHTML = '<div class="empty-state">أدخل كلمتين على الأقل لبدء البحث.</div>';
+              selectedClientId = null;
+              $("casesBody").innerHTML = "";
+              $("clientGrid").innerHTML = "";
+              $("clientProfile").innerHTML = "";
+              $("taskList").innerHTML = "";
+              $("appointmentsList").innerHTML = "";
+              $("clientSearch").value = "";
+              $("caseSearch").value = "";
+              ["totalCases", "activeCases", "upcomingCount", "openTasks", "navCases", "navTasks", "navClients"].forEach((id) => { $(id).textContent = "0"; });
+              $("caseForm").reset();
+              $("clientForm").reset();
+              $("caseModal").classList.remove("open");
+              $("clientModal").classList.remove("open");
+              currentPage = "الرئيسية";
+              setPage(currentPage);
+              $("clientsView").hidden = true;
+              $("dashboardView").hidden = false;
+              $("clientProfile").hidden = true;
+              $("clientsListView").hidden = false;
+              $("clientGrid").hidden = false;
+              document.querySelectorAll(".nav-link").forEach((link) => link.classList.toggle("active", link.dataset.page === currentPage));
+              $("officeApp").hidden = true;
+              $("authScreen").hidden = false;
+              $("authProgress").textContent = "";
+            }
+          }, (error) => {
+            console.error("Firebase authentication state error:", error);
+            $("authProgress").textContent = authErrorMessage(error);
+          });
+        } catch (error) {
+          console.error("Firebase initialization failed:", error);
+          $("authProgress").textContent = "تعذر إعداد Firebase. راجع firebase-config.js وإعدادات المشروع.";
+          $("loginButton").disabled = true;
+        }
+      }
+      $("loginForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        $("loginError").textContent = "";
+        $("loginButton").disabled = true;
+        $("authProgress").textContent = "جارٍ التحقق من بيانات الدخول...";
+        try {
+          if (!auth) throw new Error("Firebase Authentication is unavailable.");
+          await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+          const form = new FormData(event.currentTarget);
+          await auth.signInWithEmailAndPassword(form.get("email").trim(), form.get("password"));
+        } catch (error) {
+          console.error("Sign-in failed:", error);
+          $("loginError").textContent = authErrorMessage(error);
+          $("authProgress").textContent = "";
+        } finally {
+          $("loginButton").disabled = false;
+        }
+      });
+      $("logoutButton").addEventListener("click", async () => {
+        if (!auth) return;
+        try {
+          await auth.signOut();
+          showToast("تم تسجيل الخروج.");
+        } catch (error) {
+          console.error("Sign-out failed:", error);
+          showToast("تعذر تسجيل الخروج. أعد المحاولة.");
+        }
+      });
+      $("notificationButton").addEventListener("click", enableNotifications);
+      $("enableNotificationsButton").addEventListener("click", enableNotifications);
+      $("exportLegacyButton").addEventListener("click", async () => {
+        try {
+          await downloadLegacyArchive();
+          showToast("تم تنزيل نسخة البيانات. احتفظ بها في مكان آمن.");
+        } catch (error) {
+          console.error("Legacy backup export failed:", error);
+          showToast("تعذر تصدير بيانات هذا الجهاز.");
+        }
+      });
+      try {
+        if (localStorage.getItem(LEGACY_STORAGE_KEY)) {
+          $("exportLegacyButton").hidden = false;
+          $("legacyExportHint").hidden = false;
+        }
+      } catch (error) {
+        console.error("Unable to inspect legacy local data:", error);
+      }
+
+      function bindOfficeEvents() {
+      $("newCaseButton").addEventListener("click", () => openModal());
+      $("closeModal").addEventListener("click", closeModal);
+      $("cancelModal").addEventListener("click", closeModal);
+      $("caseModal").addEventListener("click", (event) => { if (event.target === $("caseModal")) closeModal(); });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          closeModal();
+          closeClientModal();
+        }
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k" && !$("officeApp").hidden) {
+          event.preventDefault();
+          setPage("البحث");
+          $("globalSearchInput").focus();
+        }
+      });
+      $("caseSearch").addEventListener("input", renderCases);
+      $("statusFilter").addEventListener("change", renderCases);
+      $("caseDocuments").addEventListener("change", (event) => {
+        const selectedFiles = Array.from(event.currentTarget.files || []);
+        const allowedExtensions = ["pdf", "doc", "docx", "jpg", "jpeg", "png", "txt"];
+        const rejectedFiles = [];
+        selectedFiles.forEach((file) => {
+          const extension = (file.name.split(".").pop() || "").toLocaleLowerCase("en");
+          if (!allowedExtensions.includes(extension)) {
+            rejectedFiles.push(`${file.name}: صيغة غير مدعومة`);
+          } else if (file.size > MAX_DOCUMENT_SIZE) {
+            rejectedFiles.push(`${file.name}: أكبر من 10 ميجابايت`);
+          } else {
+            stagedCaseFiles.push({ file, category: "أخرى" });
+          }
+        });
+        event.currentTarget.value = "";
+        renderCaseAttachmentQueue();
+        if (rejectedFiles.length) showToast(`لم تتم إضافة بعض الملفات: ${rejectedFiles.join("؛ ")}`);
+      });
+      $("caseAttachmentQueue").addEventListener("change", (event) => {
+        const selector = event.target.closest("[data-attachment-category]");
+        if (!selector) return;
+        const attachment = stagedCaseFiles[Number(selector.dataset.attachmentCategory)];
+        if (!attachment) return;
+        attachment.category = selector.value;
+        renderCaseAttachmentQueue();
+      });
+      $("caseAttachmentQueue").addEventListener("click", (event) => {
+        const button = event.target.closest("[data-remove-attachment]");
+        if (!button) return;
+        stagedCaseFiles.splice(Number(button.dataset.removeAttachment), 1);
+        renderCaseAttachmentQueue();
+      });
+      $("calendarPrev").addEventListener("click", () => {
+        calendarMonth.setMonth(calendarMonth.getMonth() - 1);
+        renderCalendar();
+      });
+      $("calendarNext").addEventListener("click", () => {
+        calendarMonth.setMonth(calendarMonth.getMonth() + 1);
+        renderCalendar();
+      });
+      $("calendarToday").addEventListener("click", () => {
+        const today = new Date();
+        calendarMonth.setFullYear(today.getFullYear(), today.getMonth(), 1);
+        selectedCalendarDate = dateKey(today);
+        renderCalendar();
+      });
+      $("calendarGrid").addEventListener("click", (event) => {
+        const day = event.target.closest("[data-calendar-date]");
+        if (!day) return;
+        selectedCalendarDate = day.dataset.calendarDate;
+        const selectedDate = new Date(`${selectedCalendarDate}T12:00:00`);
+        calendarMonth.setFullYear(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+        renderCalendar();
+      });
+      $("calendarDayList").addEventListener("click", (event) => {
+        const button = event.target.closest("[data-edit-case]");
+        if (button) openModal(button.dataset.editCase);
+      });
+      $("globalSearchInput").addEventListener("input", renderGlobalSearch);
+      $("globalSearchResults").addEventListener("click", async (event) => {
+        const caseButton = event.target.closest("[data-global-case]");
+        if (caseButton) {
+          setPage("القضايا");
+          openModal(caseButton.dataset.globalCase);
+          return;
+        }
+        const clientButton = event.target.closest("[data-global-client]");
+        if (clientButton) {
+          setPage("العملاء");
+          selectedClientId = clientButton.dataset.globalClient;
+          await renderClientProfile();
+        }
+      });
+      $("casesBody").addEventListener("click", (event) => {
+        const button = event.target.closest("[data-case-detail]");
+        if (!button) return;
+        renderCaseDetail(button.dataset.caseDetail);
+        setPage("تفاصيل القضية");
+      });
+      $("calendarDayList").addEventListener("click", (event) => {
+        const button = event.target.closest("[data-case-detail]");
+        if (!button) return;
+        renderCaseDetail(button.dataset.caseDetail);
+        setPage("تفاصيل القضية");
+      });
+      $("caseDetailView").addEventListener("click", (event) => {
+        const editButton = event.target.closest("[data-edit-case]");
+        if (editButton) {
+          openModal(editButton.dataset.editCase);
+          return;
+        }
+        if (!event.target.closest("[data-case-finance]")) return;
+        setPage("الحسابات");
+        $("financeCase").value = $("caseSessionForm")?.dataset.caseId || "";
+        $("financeType").value = "agreed";
+        $("financeDescription").focus();
+      });
+      $("caseDetailView").addEventListener("submit", async (event) => {
+        if (event.target.id !== "caseSessionForm") return;
+        event.preventDefault();
+        const form = event.target;
+        const caseItem = data.cases.find((item) => item.id === form.dataset.caseId);
+        if (!caseItem) {
+          showToast("القضية غير موجودة؛ أعد تحميل الصفحة.");
+          return;
+        }
+        const outcome = $("sessionOutcome").value.trim();
+        const nextAction = $("sessionNextAction").value.trim();
+        if (!outcome && !nextAction) {
+          showToast("اكتب ملخص الجلسة أو المطلوب قبل حفظ المتابعة.");
+          return;
+        }
+        const previousCase = { date: caseItem.date, time: caseItem.time };
+        const task = nextAction ? {
+          id: `task-${crypto.randomUUID()}`,
+          title: nextAction,
+          date: $("sessionActionDue").value ? formatDate($("sessionActionDue").value) : "بدون موعد",
+          dueDate: $("sessionActionDue").value,
+          caseId: caseItem.id,
+          done: false
+        } : null;
+        const entry = {
+          id: `event-${crypto.randomUUID()}`,
+          caseId: caseItem.id,
+          outcome,
+          nextAction,
+          actionDue: $("sessionActionDue").value,
+          nextHearingDate: $("sessionNextHearing").value,
+          nextHearingTime: $("sessionNextTime").value || "09:00",
+          createdAt: Date.now()
+        };
+        const saveButton = $("saveSessionButton");
+        saveButton.disabled = true;
+        data.caseEvents.unshift(entry);
+        if (task) data.tasks.unshift(task);
+        caseItem.date = entry.nextHearingDate;
+        caseItem.time = entry.nextHearingTime;
+        try {
+          await saveCaseEvent(entry);
+          await saveData();
+          render();
+          renderCaseDetail(caseItem.id);
+          showToast(task ? "تم تسجيل الجلسة وإضافة المطلوب إلى المهام." : "تم تسجيل متابعة الجلسة.");
+        } catch (error) {
+          data.caseEvents = data.caseEvents.filter((item) => item.id !== entry.id);
+          if (task) data.tasks = data.tasks.filter((item) => item.id !== task.id);
+          caseItem.date = previousCase.date;
+          caseItem.time = previousCase.time;
+          try {
+            await officeRef().collection("caseEvents").doc(entry.id).delete();
+          } catch (rollbackError) {
+            console.error("Failed to roll back session event after save failure:", rollbackError);
+          }
+          console.error("Failed to save session follow-up:", error);
+          showToast("تعذر حفظ المتابعة. لم يُعتمد التغيير؛ تحقق من الاتصال وحاول مجددًا.");
+          renderCaseDetail(caseItem.id);
+        }
+      });
+      $("financeForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const caseItem = data.cases.find((item) => item.id === $("financeCase").value);
+        const amount = Number($("financeAmount").value);
+        const receipt = $("financeReceipt").files[0] || null;
+        if (!caseItem || !Number.isFinite(amount) || amount <= 0) {
+          showToast("اختر قضية وأدخل مبلغًا صحيحًا أكبر من صفر.");
+          return;
+        }
+        const client = data.clients.find((item) => item.name.trim().toLocaleLowerCase("ar") === caseItem.client.trim().toLocaleLowerCase("ar"));
+        if (!client) {
+          showToast("ملف عميل القضية غير موجود؛ أضف ملف العميل أولًا.");
+          return;
+        }
+        if (receipt) {
+          const extension = (receipt.name.split(".").pop() || "").toLocaleLowerCase("en");
+          if (!["pdf", "jpg", "jpeg", "png", "txt"].includes(extension) || receipt.size > MAX_DOCUMENT_SIZE) {
+            showToast("الإيصال يجب أن يكون PDF أو صورة أو TXT وبحجم لا يتجاوز 10 ميجابايت.");
+            return;
+          }
+        }
+        const button = $("saveFinanceButton");
+        button.disabled = true;
+        let receiptDocumentId = null;
+        const entry = {
+          id: `finance-${crypto.randomUUID()}`,
+          caseId: caseItem.id,
+          clientId: client.id,
+          type: $("financeType").value,
+          amount,
+          date: $("financeDate").value,
+          description: $("financeDescription").value.trim(),
+          receiptDocumentId: null,
+          createdAt: Date.now()
+        };
+        try {
+          if (receipt) {
+            receiptDocumentId = `document-${crypto.randomUUID()}`;
+            await writeDocument({
+              id: receiptDocumentId,
+              clientId: client.id,
+              name: receipt.name,
+              extension: (receipt.name.split(".").pop() || "").toLocaleLowerCase("en"),
+              category: "إيصال",
+              size: receipt.size,
+              addedAt: Date.now(),
+              contentType: receipt.type
+            }, "upload", receipt);
+            entry.receiptDocumentId = receiptDocumentId;
+          }
+          data.transactions.unshift(entry);
+          await saveFinancialTransaction(entry);
+          event.target.reset();
+          $("financeDate").value = dateKey(new Date());
+          renderFinance();
+          showToast("تم حفظ الحركة المالية.");
+        } catch (error) {
+          data.transactions = data.transactions.filter((item) => item.id !== entry.id);
+          try {
+            await officeRef().collection("financialTransactions").doc(entry.id).delete();
+          } catch (rollbackError) {
+            console.error("Failed to remove financial transaction after save failure:", rollbackError);
+          }
+          if (receiptDocumentId) {
+            try {
+              await writeDocument(receiptDocumentId, "delete");
+            } catch (rollbackError) {
+              console.error("Failed to clean up receipt after finance save failure:", rollbackError);
+            }
+          }
+          console.error("Failed to save financial transaction:", error);
+          showToast("تعذر حفظ الحركة المالية أو إيصالها. راجع اتصال التخزين وحاول مجددًا.");
+        } finally {
+          button.disabled = false;
+        }
+      });
+      $("financeRows").addEventListener("click", async (event) => {
+        const button = event.target.closest("[data-finance-receipt]");
+        if (!button) return;
+        try {
+          const receipt = await getDocument(button.dataset.financeReceipt);
+          if (!receipt) throw new Error("الإيصال غير موجود.");
+          const blob = await storage.ref(receipt.storagePath).getBlob();
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = receipt.name;
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } catch (error) {
+          console.error("Failed to download finance receipt:", error);
+          showToast("تعذر تنزيل الإيصال.");
+        }
+      });
+      $("documentSearchForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const query = $("documentSearchInput").value.trim();
+        if (query.length < 2) {
+          showToast("اكتب حرفين على الأقل للبحث.");
+          return;
+        }
+        const button = $("documentSearchButton");
+        button.disabled = true;
+        try {
+          await searchDocumentContents(query);
+        } catch (error) {
+          console.error("Document content search failed:", error);
+          $("documentSearchResults").innerHTML = '<div class="empty-state">تعذر إكمال البحث في المستندات. تحقق من اتصال Firebase وحاول مجددًا.</div>';
+          showToast("تعذر البحث في محتوى المستندات.");
+        } finally {
+          button.disabled = false;
+        }
+      });
+      $("documentSearchResults").addEventListener("click", async (event) => {
+        const result = event.target.closest("[data-document-search-client]");
+        if (!result) return;
+        selectedClientId = result.dataset.documentSearchClient;
+        setPage("العملاء");
+        await renderClientProfile();
+        const row = [...document.querySelectorAll("#documentList [data-download-document]")]
+          .find((button) => button.dataset.downloadDocument === result.dataset.documentSearchId)?.closest(".document-row");
+        row?.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      $("templateCase").addEventListener("change", populateTemplate);
+      $("templateKind").addEventListener("change", populateTemplate);
+      $("refreshTemplateButton").addEventListener("click", populateTemplate);
+      $("templateSubject").addEventListener("input", renderTemplatePreview);
+      $("templateBody").addEventListener("input", renderTemplatePreview);
+      $("downloadTemplateButton").addEventListener("click", () => {
+        if (!$("templateSubject").value.trim() || !$("templateBody").value.trim()) {
+          showToast("أكمل عنوان المسودة ونصها قبل التصدير.");
+          return;
+        }
+        const documentBlob = new Blob([`\uFEFF${templateDocumentHtml()}`], { type: "application/msword;charset=utf-8" });
+        const url = URL.createObjectURL(documentBlob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `sameh-draft-${dateKey(new Date())}.doc`;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      });
+      $("printTemplateButton").addEventListener("click", () => {
+        if (!$("templateSubject").value.trim() || !$("templateBody").value.trim()) {
+          showToast("أكمل عنوان المسودة ونصها قبل الطباعة.");
+          return;
+        }
+        document.body.classList.add("printing-template");
+        window.addEventListener("afterprint", () => document.body.classList.remove("printing-template"), { once: true });
+        window.print();
+      });
+      $("printReportButton").addEventListener("click", () => window.print());
+      $("exportReportButton").addEventListener("click", () => {
+        try {
+          exportReportCsv();
+          showToast("تم تنزيل تقرير القضايا بصيغة CSV.");
+        } catch (error) {
+          console.error("Report export failed:", error);
+          showToast("تعذر تصدير التقرير.");
+        }
+      });
+      $("casesBody").addEventListener("click", (event) => {
+        const button = event.target.closest("[data-edit-case]");
+        if (button) openModal(button.dataset.editCase);
+      });
+      $("menuToggle").addEventListener("click", () => $("sidebar").classList.toggle("open"));
+      document.querySelectorAll(".nav-link").forEach((link) => link.addEventListener("click", () => setPage(link.dataset.page)));
+      document.querySelectorAll("[data-goto]").forEach((button) => button.addEventListener("click", () => setPage(button.dataset.goto)));
+      $("caseForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const submitButton = $("saveCaseButton");
+        const attachments = [...stagedCaseFiles];
+        const allowedExtensions = ["pdf", "doc", "docx", "jpg", "jpeg", "png", "txt"];
+        const invalidFile = attachments.find(({ file }) => {
+          const extension = (file.name.split(".").pop() || "").toLocaleLowerCase("en");
+          return !allowedExtensions.includes(extension) || file.size > MAX_DOCUMENT_SIZE;
+        });
+        if (invalidFile) {
+          const extension = (invalidFile.file.name.split(".").pop() || "").toLocaleLowerCase("en");
+          showToast(!allowedExtensions.includes(extension)
+            ? `صيغة الملف ${invalidFile.file.name} غير مدعومة.`
+            : `حجم الملف ${invalidFile.file.name} أكبر من 10 ميجابايت.`);
+          return;
+        }
+        submitButton.disabled = true;
+        submitButton.textContent = attachments.length ? "جارٍ حفظ القضية والمرفقات..." : "جارٍ حفظ القضية...";
+        const form = new FormData(event.currentTarget);
+        const previousData = structuredClone(data);
+        const nextNumber = Math.max(0, ...data.cases.map((item) => Number((item.id.match(/\d+$/) || [0])[0]))) + 1;
+        const year = new Date().getFullYear();
+        const record = {
+          id: editingCaseId || `${year}/${String(nextNumber).padStart(4, "0")}`,
+          name: form.get("name").trim(),
+          client: form.get("client").trim(),
+          type: form.get("type"),
+          status: form.get("status"),
+          date: form.get("date"),
+          time: form.get("time") || "09:00",
+          court: form.get("court").trim(),
+          notes: form.get("notes").trim()
+        };
+        if (editingCaseId) {
+          const index = data.cases.findIndex((item) => item.id === editingCaseId);
+          if (index < 0) {
+            submitButton.disabled = false;
+            submitButton.textContent = "حفظ التعديلات";
+            showToast("لم تعد هذه القضية موجودة.");
+            return;
+          }
+          data.cases[index] = record;
+        } else {
+          data.cases.unshift(record);
+        }
+        let client = data.clients.find((item) => item.name.trim().toLocaleLowerCase("ar") === record.client.trim().toLocaleLowerCase("ar"));
+        if (!client) {
+          client = { id: `client-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, name: record.client, phone: "", email: "", notes: "", documents: [] };
+          data.clients.push(client);
+        }
+        try {
+          await saveData();
+        } catch (error) {
+          data = previousData;
+          submitButton.disabled = false;
+          submitButton.textContent = editingCaseId ? "حفظ التعديلات" : "حفظ القضية";
+          console.error("Failed to save case:", error);
+          showToast("تعذر حفظ القضية. تحقق من الاتصال وحاول مجددًا.");
+          return;
+        }
+        const wasEditing = Boolean(editingCaseId);
+        let uploadedCount = 0;
+        const uploadFailures = [];
+        for (const attachment of attachments) {
+          const { file, category } = attachment;
+          const extension = (file.name.split(".").pop() || "").toLocaleLowerCase("en");
+          try {
+            await writeDocument({
+              id: `document-${crypto.randomUUID()}`,
+              clientId: client.id,
+              name: file.name,
+              extension,
+              category,
+              size: file.size,
+              addedAt: Date.now(),
+              contentType: file.type
+            }, "upload", file);
+            uploadedCount += 1;
+          } catch (error) {
+            console.error(`Failed to upload case attachment ${file.name}:`, error);
+            uploadFailures.push(file.name);
+          }
+        }
+        closeModal();
+        render();
+        if (currentPage === "تفاصيل القضية") renderCaseDetail(record.id);
+        if (uploadFailures.length) {
+          const uploadedLabel = uploadedCount === 1 ? "مرفق واحد" : `${uploadedCount} مرفقات`;
+          showToast(`تم حفظ القضية ورفع ${uploadedLabel} من ${attachments.length}. تعذر رفع: ${uploadFailures.join("، ")}`);
+        } else if (attachments.length) {
+          showToast(`تم حفظ القضية ورفع ${uploadedCount === 1 ? "مرفق واحد" : `${uploadedCount} مرفقات`} مصنّفة إلى ملف العميل.`);
+        } else {
+          showToast(wasEditing ? "تم حفظ بيانات القضية وموعدها." : "تمت إضافة القضية وحفظها بنجاح.");
+        }
+      });
+      $("newClientButton").addEventListener("click", openClientModal);
+      $("importLegacyButton").addEventListener("click", () => $("importLegacyInput").click());
+      $("importLegacyInput").addEventListener("change", async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        try {
+          await importLegacyArchive(file);
+        } catch (error) {
+          console.error("Legacy backup import failed:", error);
+          showToast(error.message || "تعذر استيراد النسخة الاحتياطية.");
+        } finally {
+          event.target.value = "";
+        }
+      });
+      $("closeClientModal").addEventListener("click", closeClientModal);
+      $("cancelClientModal").addEventListener("click", closeClientModal);
+      $("clientModal").addEventListener("click", (event) => { if (event.target === $("clientModal")) closeClientModal(); });
+      $("clientForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const form = new FormData(event.currentTarget);
+        const name = form.get("name").trim();
+        if (data.clients.some((client) => client.name.trim().toLocaleLowerCase("ar") === name.toLocaleLowerCase("ar"))) {
+          showToast("يوجد بالفعل ملف لهذا العميل.");
+          return;
+        }
+        const client = {
+          id: `client-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          name,
+          phone: form.get("phone").trim(),
+          email: form.get("email").trim(),
+          notes: form.get("notes").trim()
+        };
+        data.clients.unshift(client);
+        try {
+          await saveData();
+        } catch (error) {
+          data.clients.shift();
+          console.error("Failed to save client:", error);
+          showToast("تعذر حفظ العميل في Firebase. حاول مجددًا.");
+          return;
+        }
+        closeClientModal();
+        render();
+        showToast("تم إنشاء ملف العميل.");
+      });
+      $("clientSearch").addEventListener("input", renderClients);
+      $("clientGrid").addEventListener("click", (event) => {
+        const card = event.target.closest("[data-open-client]");
+        if (!card) return;
+        selectedClientId = card.dataset.openClient;
+        renderClientProfile();
+      });
+      $("clientProfile").addEventListener("click", async (event) => {
+        if (event.target.closest("[data-client-back]")) {
+          selectedClientId = null;
+          renderClientProfile();
+          return;
+        }
+        const uploadButton = event.target.closest("[data-upload-client]");
+        if (uploadButton) {
+          $("profileDocumentInput").click();
+          return;
+        }
+        const downloadButton = event.target.closest("[data-download-document]");
+        if (downloadButton) {
+          try {
+            const document = await getDocument(downloadButton.dataset.downloadDocument);
+            if (!document) throw new Error("المستند غير موجود.");
+            const blob = await storage.ref(document.storagePath).getBlob();
+            const url = URL.createObjectURL(blob);
+            const link = window.document.createElement("a");
+            link.href = url;
+            link.download = document.name;
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+          } catch (error) {
+            console.error("Failed to download client document:", error);
+            showToast(error.message || "تعذر تنزيل المستند.");
+          }
+          return;
+        }
+        const deleteButton = event.target.closest("[data-delete-document]");
+        if (deleteButton && window.confirm("هل تريد حذف هذا المستند نهائيًا؟")) {
+          try {
+            await writeDocument(deleteButton.dataset.deleteDocument, "delete");
+            await renderClientProfile();
+            showToast("تم حذف المستند.");
+          } catch (error) {
+            console.error("Failed to delete client document:", error);
+            showToast("تعذر حذف المستند.");
+          }
+        }
+      });
+      $("clientProfile").addEventListener("change", async (event) => {
+        const input = event.target;
+        if (input.id !== "profileDocumentInput" || !input.files.length) return;
+        const file = input.files[0];
+        const allowedExtensions = ["pdf", "doc", "docx", "jpg", "jpeg", "png", "txt"];
+        const extension = (file.name.split(".").pop() || "").toLocaleLowerCase("en");
+        if (!allowedExtensions.includes(extension)) {
+          showToast("نوع الملف غير مدعوم.");
+          input.value = "";
+          return;
+        }
+        if (file.size > MAX_DOCUMENT_SIZE) {
+          showToast("حجم الملف أكبر من الحد المسموح (10 ميجابايت).");
+          input.value = "";
+          return;
+        }
+        try {
+          await writeDocument({
+            id: `document-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            clientId: selectedClientId,
+            name: file.name,
+            extension,
+            size: file.size,
+            addedAt: Date.now(),
+            contentType: file.type
+          }, "upload", file);
+          await renderClientProfile();
+          showToast("تم رفع المستند وحفظه في ملف العميل.");
+        } catch (error) {
+          console.error("Failed to upload client document:", error);
+          showToast("تعذر حفظ المستند. قد تكون مساحة التخزين غير كافية.");
+        } finally {
+          input.value = "";
+        }
+      });
+      $("taskList").addEventListener("change", async (event) => {
+        const checkbox = event.target.closest("[data-task]");
+        if (!checkbox) return;
+        const task = data.tasks.find((item) => item.id === checkbox.dataset.task);
+        if (!task) return;
+        task.done = checkbox.checked;
+        try {
+          await saveData();
+        } catch (error) {
+          task.done = !checkbox.checked;
+          renderTasks();
+          console.error("Failed to update task:", error);
+          showToast("تعذر حفظ تغيير المهمة.");
+          return;
+        }
+        render();
+      });
+      $("addTaskButton").addEventListener("click", async () => {
+        const title = window.prompt("اكتب وصف المهمة الجديدة:");
+        if (title === null) return;
+        if (!title.trim()) {
+          showToast("اكتب وصفًا للمهمة قبل إضافتها.");
+          return;
+        }
+        const task = { id: `task-${Date.now()}`, title: title.trim().slice(0, 120), date: "بدون موعد", done: false };
+        data.tasks.unshift(task);
+        try {
+          await saveData();
+        } catch (error) {
+          data.tasks.shift();
+          console.error("Failed to create task:", error);
+          showToast("تعذر حفظ المهمة في Firebase.");
+          return;
+        }
+        render();
+        showToast("تمت إضافة المهمة.");
+      });
+      }
+      initializeFirebase();
+    })();
+  </script>
+</body>
+</html>
