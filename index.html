@@ -87,6 +87,9 @@
     html[data-theme="dark"] .modal,
     html[data-theme="dark"] .auth-card,
     html[data-theme="dark"] .icon-button,
+    html[data-theme="dark"] .assistant-panel,
+    html[data-theme="dark"] .assistant-form input,
+    html[data-theme="dark"] .assistant-suggestion,
     html[data-theme="dark"] .notification-menu,
     html[data-theme="dark"] .filter-select,
     html[data-theme="dark"] .search,
@@ -465,6 +468,26 @@
     .notification-item:hover { background: var(--table-hover); }
     .notification-item strong { font-size: 12px; }
     .notification-item span { color: var(--muted); font-size: 10px; }
+    .danger-button { border: 1px solid #e8c7ca; background: var(--rose-soft); color: var(--rose); border-radius: 9px; padding: 9px 15px; font-size: 11px; font-weight: 700; }
+    .danger-button:hover { filter: brightness(.97); }
+    .notification-setup[hidden] { display: none; }
+    .assistant-widget { display: none; position: fixed; left: 22px; bottom: 22px; z-index: 4; direction: rtl; }
+    #officeApp:not([hidden]) + .assistant-widget { display: block; }
+    .assistant-launcher { width: 54px; height: 54px; border: 0; border-radius: 50%; background: var(--navy); color: #fff; box-shadow: 0 8px 24px rgba(23, 56, 76, .24); font-size: 23px; }
+    .assistant-panel { position: absolute; left: 0; bottom: 66px; display: flex; flex-direction: column; width: min(370px, calc(100vw - 30px)); height: min(520px, calc(100vh - 120px)); overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); color: var(--ink); box-shadow: 0 18px 55px rgba(23, 43, 59, .2); }
+    .assistant-panel[hidden] { display: none; }
+    .assistant-head { display: flex; align-items: center; justify-content: space-between; padding: 13px 15px; background: var(--navy); color: #fff; }
+    .assistant-head strong { font-size: 13px; }
+    .assistant-head span { display: block; opacity: .8; font-size: 10px; }
+    .assistant-close { border: 0; background: transparent; color: #fff; font-size: 22px; }
+    .assistant-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; align-items: flex-start; gap: 9px; padding: 13px; }
+    .assistant-message { max-width: 90%; padding: 9px 11px; border-radius: 12px 12px 12px 3px; background: var(--surface-muted); font-size: 12px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .assistant-message.user { align-self: flex-end; border-radius: 12px 12px 3px 12px; background: var(--teal-soft); }
+    .assistant-suggestions { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 12px 10px; }
+    .assistant-suggestion { border: 1px solid var(--line); border-radius: 20px; padding: 5px 9px; background: var(--surface); color: var(--ink); font-size: 10px; }
+    .assistant-form { display: flex; gap: 7px; padding: 10px; border-top: 1px solid var(--line); }
+    .assistant-form input { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 9px; padding: 9px; background: var(--surface); color: var(--ink); font: inherit; font-size: 12px; }
+    .assistant-form button { border: 0; border-radius: 9px; padding: 0 13px; background: var(--navy); color: #fff; font-size: 12px; }
     .reminder-settings { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 14px; margin: 13px 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
     .reminder-settings p { margin: 0; color: var(--muted); font-size: 10px; }
     .reminder-settings .primary-button { padding: 7px 10px; font-size: 10px; white-space: nowrap; }
@@ -660,7 +683,7 @@
           <div><h1 id="welcomeTitle">أهلًا، أستاذ سامح 👋</h1><div class="subtitle" id="welcomeSubtitle">إليك ملخص أعمال مكتبك اليوم.</div></div>
           <button class="primary-button" id="newCaseButton"><span>＋</span> إضافة قضية جديدة</button>
         </section>
-        <div class="reminder-settings"><p>فعّل إشعارات المتصفح لتصلك تذكيرات الجلسات قبل موعدها بيوم وقبلها بساعة.</p><button class="secondary-button" id="importLegacyButton" type="button">استيراد نسخة قديمة</button><input id="importLegacyInput" type="file" accept=".json,application/json" hidden><button class="primary-button" id="enableNotificationsButton" type="button">تفعيل التنبيهات</button></div>
+        <div class="reminder-settings"><p>فعّل إشعارات المتصفح لتصلك تذكيرات الجلسات قبل موعدها بيوم وقبلها بساعة.</p><button class="secondary-button" id="importLegacyButton" type="button">استيراد نسخة قديمة</button><input id="importLegacyInput" type="file" accept=".json,application/json" hidden><button class="primary-button notification-setup" id="enableNotificationsButton" type="button">تفعيل التنبيهات</button></div>
 
         <section class="stats" aria-label="ملخص المكتب">
           <article class="stat-card">
@@ -807,6 +830,28 @@
     </main>
   </div>
 
+  <aside class="assistant-widget" id="assistantWidget" aria-label="مساعد المكتب">
+    <section class="assistant-panel" id="assistantPanel" aria-label="مساعد المكتب" hidden>
+      <header class="assistant-head">
+        <div><strong>مساعد المكتب</strong><span>إجابات فورية عن استخدام المنصة</span></div>
+        <button class="assistant-close" id="assistantClose" type="button" aria-label="إغلاق المساعد">×</button>
+      </header>
+      <div class="assistant-messages" id="assistantMessages" aria-live="polite">
+        <div class="assistant-message">أهلًا بك! اسألني عن القضايا أو العملاء أو الملفات أو المواعيد. لا أطلع على بيانات ملفات المكتب.</div>
+      </div>
+      <div class="assistant-suggestions" id="assistantSuggestions">
+        <button class="assistant-suggestion" type="button">كيف أضيف قضية؟</button>
+        <button class="assistant-suggestion" type="button">كيف أحذف قضية؟</button>
+        <button class="assistant-suggestion" type="button">كيف أفعّل التنبيهات؟</button>
+      </div>
+      <form class="assistant-form" id="assistantForm">
+        <input id="assistantInput" type="text" maxlength="500" autocomplete="off" placeholder="اكتب سؤالك هنا..." aria-label="اكتب سؤالك للمساعد" required>
+        <button type="submit">إرسال</button>
+      </form>
+    </section>
+    <button class="assistant-launcher" id="assistantToggle" type="button" aria-label="فتح مساعد المكتب" aria-expanded="false" aria-controls="assistantPanel">✦</button>
+  </aside>
+
   <div class="modal-backdrop" id="caseModal" role="presentation">
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <div class="modal-head"><div><h2 id="modalTitle">إضافة قضية جديدة</h2><p>أدخل بيانات القضية لحفظها في سجل المكتب.</p></div><button class="close-modal" id="closeModal" aria-label="إغلاق">×</button></div>
@@ -852,6 +897,23 @@
     (() => {
       const LEGACY_STORAGE_KEY = "sameh-ammar-law-office-v1";
       const MAX_DOCUMENT_SIZE = 10 * 1024 * 1024;
+      const assistantKnowledge = [
+        { keywords: ["إضافة قضية", "اضيف قضية", "قضية جديدة", "تسجيل قضية"], answer: "من الصفحة الرئيسية اضغط «إضافة قضية جديدة»، وأدخل اسم القضية والعميل والبيانات المطلوبة. يمكنك تحديد موعد الجلسة وإرفاق عدة مستندات قبل الضغط على «حفظ القضية»." },
+        { keywords: ["حذف القضية", "احذف القضية", "امسح القضية", "حذف قضية", "احذف قضية", "مسح قضية"], answer: "من قائمة القضايا اضغط «حذف» بجوار القضية، أو افتح سجلها واختر «حذف القضية». سيطلب النظام تأكيدًا؛ الحذف يزيل القضية ومتابعاتها ومهامها وحركاتها المالية والمرفقات المرتبطة بها، ولا يمكن التراجع عنه." },
+        { keywords: ["تعديل قضية", "تعديل موعد", "تغيير موعد"], answer: "اضغط «تعديل» بجوار القضية، حدّث البيانات أو موعد الجلسة، ثم اضغط «حفظ التعديلات»." },
+        { keywords: ["إضافة عميل", "عميل جديد", "ملف عميل"], answer: "افتح صفحة «العملاء» واضغط «إضافة عميل». اكتب الاسم، ويمكنك إضافة الهاتف والبريد والملاحظات." },
+        { keywords: ["مستند", "ملف", "رفع ملف", "ارفق"], answer: "أضف المستند من نموذج القضية أو من ملف العميل. الصيغ المدعومة PDF وWord والصور وTXT، والحد الأقصى 10 ميجابايت للملف." },
+        { keywords: ["حذف مستند", "حذف ملف"], answer: "افتح ملف العميل، ثم اضغط «حذف» بجوار المستند. سيُطلب منك تأكيد الحذف." },
+        { keywords: ["جلسة", "موعد", "تقويم", "مواعيد"], answer: "أضف تاريخ الجلسة ووقتها في القضية. تظهر المواعيد في صفحة «المواعيد» وقائمة الجرس للمواعيد القادمة." },
+        { keywords: ["مهمة", "مهام"], answer: "أضف مهمة من قسم «مهام المكتب» في الصفحة الرئيسية. يمكنك تحديد موعد وإنجازها من قائمة المهام." },
+        { keywords: ["أتعاب", "مصروف", "دفعة", "إيصال", "حسابات"], answer: "افتح «الأتعاب والمصروفات»، واختر نوع الحركة والقضية والمبلغ والتاريخ والبيان. يمكن إرفاق إيصال PDF أو صورة أو TXT." },
+        { keywords: ["بحث", "أدور", "ابحث"], answer: "استخدم «بحث شامل» للقضايا والعملاء، أو «بحث بالمستندات» للنصوص داخل ملفات TXT وPDF النصية وDOCX. لا يدعم البحث OCR للصور أو الملفات الممسوحة ضوئيًا." },
+        { keywords: ["تقرير", "تصدير", "csv"], answer: "افتح «التقارير» لمراجعة ملخص القضايا. يمكنك طباعة التقرير أو تصديره بصيغة CSV؛ احفظ الملف في مكان آمن لأنه قد يحتوي بيانات العملاء." },
+        { keywords: ["تنبيه", "إشعار", "اشعار", "جرس", "إشعارات"], answer: "فعّل التنبيهات من الزر الموجود في الصفحة الرئيسية واسمح بها في المتصفح. الإشعارات المحلية تعمل عندما يكون الموقع مفتوحًا؛ زر الجرس يعرض المواعيد والمهام القادمة." },
+        { keywords: ["نسخة", "استيراد", "نسخ احتياطي", "بيانات قديمة"], answer: "يمكن تنزيل نسخة من بيانات هذا الجهاز من شاشة الدخول، واستيراد نسخة قديمة بعد الدخول. ملف النسخة يحتوي بيانات سرية، فاحفظه بأمان واحذفه بعد الانتهاء." },
+        { keywords: ["لون", "داكن", "فاتح", "مظهر", "الوضع"], answer: "استخدم زر الشمس أو القمر في الشريط العلوي للتبديل بين المظهر الفاتح والداكن. يُحفظ الاختيار على الجهاز." },
+        { keywords: ["قانون", "استشارة", "حكم", "دعوى"], answer: "أستطيع المساعدة في استخدام المنصة فقط، ولا أقدم استشارة قانونية أو أحكامًا على وقائع القضايا. راجع المحامي المختص بشأن أي مسألة قانونية." }
+      ];
       const statusLabels = { active: "جارية", pending: "بانتظار جلسة", closed: "منتهية" };
       const documentCategories = ["مستند قضائي", "توكيل", "بطاقة هوية", "عقد", "مراسلات", "إيصال", "أخرى"];
       const monthNames = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
@@ -919,6 +981,84 @@
       }
       async function saveFinancialTransaction(item) {
         await officeRef().collection("financialTransactions").doc(item.id).set(item);
+      }
+      async function deleteCaseRecord(caseId) {
+        const caseItem = data.cases.find((item) => item.id === caseId);
+        if (!caseItem) throw new Error("لم تعد القضية موجودة.");
+        const caseTransactions = data.transactions.filter((item) => item.caseId === caseId);
+        const receiptIds = new Set(caseTransactions.map((item) => item.receiptDocumentId).filter(Boolean));
+        const documents = data.clients.flatMap((client) => (client.documents || [])
+          .filter((item) => item.caseId === caseId || receiptIds.has(item.id))
+          .map((item) => ({ ...item, clientId: client.id })));
+        if (documents.some((item) => !item.storagePath)) throw new Error("تعذر تحديد مسار أحد مرفقات القضية بأمان. لم تُحذف القضية؛ تواصل مع مسؤول النظام.");
+        const caseEvents = data.caseEvents.filter((item) => item.caseId === caseId);
+        const caseTasks = data.tasks.filter((item) => item.caseId === caseId);
+        const batchOperationCount = 1 + caseEvents.length + caseTransactions.length;
+        if (batchOperationCount > 500) throw new Error("تعذر حذف القضية آمنًا لكثرة سجلاتها المرتبطة. تواصل مع مسؤول النظام.");
+
+        const nextCases = data.cases.filter((item) => item.id !== caseId);
+        const nextClients = data.clients.map((client) => ({
+          ...client,
+          documents: (client.documents || []).filter((item) => item.caseId !== caseId && !receiptIds.has(item.id))
+        }));
+        const nextTasks = data.tasks.filter((item) => item.caseId !== caseId);
+        const reference = officeRef();
+        const batch = firestore.batch();
+        batch.set(reference, {
+          cases: nextCases,
+          clients: nextClients,
+          tasks: nextTasks,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        caseEvents.forEach((item) => batch.delete(reference.collection("caseEvents").doc(item.id)));
+        caseTransactions.forEach((item) => batch.delete(reference.collection("financialTransactions").doc(item.id)));
+        const fileDeletions = await Promise.allSettled(documents.map((item) => storage.ref(item.storagePath).delete()));
+        const failedFileDeletions = fileDeletions.filter((result) => result.status === "rejected" && result.reason?.code !== "storage/object-not-found");
+        if (failedFileDeletions.length) {
+          failedFileDeletions.forEach((result) => console.error("Failed to delete case attachment from storage:", result.reason));
+          throw new Error(`تعذر حذف ${failedFileDeletions.length} من مرفقات القضية. لم تُحذف القضية؛ تحقق من الاتصال والصلاحيات ثم أعد المحاولة.`);
+        }
+        await batch.commit();
+
+        data.cases = nextCases;
+        data.clients = nextClients;
+        data.tasks = nextTasks;
+        data.caseEvents = data.caseEvents.filter((item) => item.caseId !== caseId);
+        data.transactions = data.transactions.filter((item) => item.caseId !== caseId);
+        documents.forEach((item) => documentTextCache.delete(item.id));
+        for (const reminderId of shownLocalReminders) {
+          if (reminderId.startsWith(`case:${caseId}:`) || reminderId.startsWith(`task:`) && caseTasks.some((task) => reminderId.startsWith(`task:${task.id}:`))) {
+            shownLocalReminders.delete(reminderId);
+          }
+        }
+
+        render();
+        if (currentPage === "تفاصيل القضية") setPage("القضايا");
+        showToast("تم حذف القضية وسجلاتها ومرفقاتها المرتبطة.");
+        return caseItem;
+      }
+      async function requestCaseDeletion(caseId, button) {
+        const caseItem = data.cases.find((item) => item.id === caseId);
+        if (!caseItem) {
+          showToast("لم تعد القضية موجودة.");
+          return;
+        }
+        if (!window.confirm(`هل تريد حذف القضية «${caseItem.name}» نهائيًا؟\nسيتم حذف متابعاتها ومهامها وحركاتها المالية ومرفقاتها المرتبطة أيضًا، مع الإبقاء على ملف العميل. لا يمكن التراجع عن الحذف.`)) return;
+        const previousText = button?.textContent;
+        if (button) {
+          button.disabled = true;
+          button.textContent = "جارٍ الحذف...";
+        }
+        try {
+          await deleteCaseRecord(caseId);
+        } catch (error) {
+          console.error("Failed to delete case and related records:", error);
+          if (button) {
+            button.disabled = false;
+            button.textContent = previousText;
+          }
+          showToast(error.message || "تعذر حذف القضية وسجلاتها. لم يتم تأكيد الحذف؛ تحقق من الاتصال ثم أعد المحاولة.");
+        }
       }
       function emptyOfficeData() {
         return {
@@ -1233,7 +1373,8 @@
           category: document.category || "أخرى",
           size: file.size,
           addedAt: document.addedAt || Date.now(),
-          storagePath
+          storagePath,
+          ...(document.caseId ? { caseId: document.caseId } : {})
         };
         documentTextCache.delete(document.id);
         client.documents.unshift(metadata);
@@ -1320,6 +1461,50 @@
         checkLocalReminders();
         localReminderTimer = setInterval(checkLocalReminders, 60 * 1000);
       }
+      function updateNotificationSetupButton(user = activeUser) {
+        const button = $("enableNotificationsButton");
+        let alreadyEnabled = false;
+        if (user && "Notification" in window && Notification.permission === "granted") {
+          try {
+            alreadyEnabled = localStorage.getItem(`sameh-notifications-enabled-${user.uid}`) === "true";
+          } catch (error) {
+            console.warn("Unable to read notification setup state:", error);
+          }
+        }
+        button.hidden = alreadyEnabled;
+        button.textContent = alreadyEnabled ? "التنبيهات مفعّلة" : "تفعيل التنبيهات";
+      }
+      function normalizeAssistantText(value) {
+        return value.toLocaleLowerCase("ar")
+          .replace(/[أإآ]/g, "ا")
+          .replace(/ة/g, "ه")
+          .replace(/ى/g, "ي")
+          .replace(/[ًٌٍَُِّْـ]/g, "")
+          .replace(/[؟?!.,،؛:]/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+      function assistantAnswer(question) {
+        const query = normalizeAssistantText(question);
+        let bestMatch = null;
+        let bestScore = 0;
+        for (const entry of assistantKnowledge) {
+          const matches = entry.keywords.filter((keyword) => query.includes(normalizeAssistantText(keyword)));
+          const score = matches.reduce((total, keyword) => total + normalizeAssistantText(keyword).length, 0);
+          if (score > bestScore) {
+            bestMatch = entry;
+            bestScore = score;
+          }
+        }
+        return bestMatch?.answer || "لم أفهم سؤالك بالكامل. أستطيع المساعدة في القضايا والعملاء والملفات والمواعيد والمهام والأتعاب والبحث والتقارير والتنبيهات. اكتب سؤالك بطريقة أخرى أو اختر أحد الاقتراحات.";
+      }
+      function addAssistantMessage(message, sender) {
+        const item = document.createElement("div");
+        item.className = `assistant-message${sender === "user" ? " user" : ""}`;
+        item.textContent = message;
+        $("assistantMessages").append(item);
+        item.scrollIntoView({ block: "end" });
+      }
       function formatDate(value) {
         if (!value) return "—";
         const date = new Date(value + "T12:00:00");
@@ -1379,7 +1564,7 @@
         const paid = transactions.filter((entry) => entry.type === "payment").reduce((sum, entry) => sum + Number(entry.amount), 0);
         const expenses = transactions.filter((entry) => entry.type === "expense").reduce((sum, entry) => sum + Number(entry.amount), 0);
         $("caseDetailView").innerHTML = `
-          <div class="feature-toolbar"><div><h2>${escapeHtml(item.name)}</h2><p>${escapeHtml(item.id)} · ${escapeHtml(item.client)} · ${escapeHtml(item.court || "المحكمة غير محددة")}</p></div><div class="case-detail-actions"><button class="secondary-button" type="button" data-edit-case="${escapeHtml(item.id)}">تعديل القضية</button><button class="secondary-button" type="button" data-case-finance>إضافة حركة مالية</button></div></div>
+          <div class="feature-toolbar"><div><h2>${escapeHtml(item.name)}</h2><p>${escapeHtml(item.id)} · ${escapeHtml(item.client)} · ${escapeHtml(item.court || "المحكمة غير محددة")}</p></div><div class="case-detail-actions"><button class="secondary-button" type="button" data-edit-case="${escapeHtml(item.id)}">تعديل القضية</button><button class="secondary-button" type="button" data-case-finance>إضافة حركة مالية</button><button class="danger-button" type="button" data-delete-case="${escapeHtml(item.id)}">حذف القضية</button></div></div>
           <section class="case-finance-summary"><article class="finance-item"><div class="finance-label">الأتعاب المتفق عليها</div><div class="finance-value">${formatMoney(agreed)}</div></article><article class="finance-item"><div class="finance-label">المدفوع · المتبقي</div><div class="finance-value">${formatMoney(paid)} · ${formatMoney(Math.max(0, agreed - paid))}</div></article><article class="finance-item"><div class="finance-label">مصروفات القضية</div><div class="finance-value">${formatMoney(expenses)}</div></article></section>
           <section class="panel"><div class="panel-head"><div><div class="panel-title">تسجيل متابعة بعد الجلسة</div><div class="panel-caption">دوّن القرار والخطوة التالية؛ ستُضاف تلقائيًا إلى الخط الزمني والمهام.</div></div></div>
             <form class="form" id="caseSessionForm" data-case-id="${escapeHtml(item.id)}"><div class="form-grid">
@@ -1743,7 +1928,7 @@
             <td>${escapeHtml(item.type || "أخرى")}</td>
             <td>${formatDate(item.date)}${item.date ? ` · ${escapeHtml(item.time || "09:00")}` : ""}</td>
             <td><span class="status status-${Object.hasOwn(statusLabels, item.status) ? item.status : "active"}">${statusLabels[item.status] || "جارية"}</span></td>
-            <td><span class="case-open-actions"><button class="text-button" type="button" data-case-detail="${escapeHtml(item.id)}">السجل</button><button class="text-button" type="button" data-edit-case="${escapeHtml(item.id)}">تعديل</button></span></td>
+            <td><span class="case-open-actions"><button class="text-button" type="button" data-case-detail="${escapeHtml(item.id)}">السجل</button><button class="text-button" type="button" data-edit-case="${escapeHtml(item.id)}">تعديل</button><button class="text-button" type="button" data-delete-case="${escapeHtml(item.id)}">حذف</button></span></td>
           </tr>`).join("");
         $("casesEmpty").hidden = visible.length > 0;
         $("casesBody").closest("table").hidden = visible.length === 0;
@@ -1994,6 +2179,12 @@
             $("notificationDot").classList.add("visible");
               showToast("لديك تذكير بجلسة أو مهمة متابعة قريبة. سجّل الدخول لمراجعتها.");
           });
+          try {
+            localStorage.setItem(`sameh-notifications-enabled-${activeUser.uid}`, "true");
+          } catch (error) {
+            console.warn("Unable to persist notification setup state:", error);
+          }
+          $("enableNotificationsButton").hidden = true;
           $("enableNotificationsButton").textContent = "التنبيهات مفعّلة";
           showToast("تم تفعيل تنبيهات الجلسات لهذا المتصفح.");
         } catch (error) {
@@ -2020,7 +2211,7 @@
           $("officeApp").hidden = false;
           $("authScreen").hidden = true;
           $("authProgress").textContent = "";
-          $("enableNotificationsButton").textContent = "تفعيل التنبيهات";
+          updateNotificationSetupButton(user);
           $("importLegacyButton").hidden = false;
           document.querySelector(".page-note").textContent = "تُحفظ ملفات المكتب في مساحة خاصة، ويقتصر الوصول عليها على الحساب المعتمد.";
           if (!initialized) {
@@ -2153,6 +2344,31 @@
         $("notificationButton").setAttribute("aria-expanded", "false");
       });
       $("enableNotificationsButton").addEventListener("click", enableNotifications);
+      $("assistantToggle").addEventListener("click", () => {
+        const opening = $("assistantPanel").hidden;
+        $("assistantPanel").hidden = !opening;
+        $("assistantToggle").setAttribute("aria-expanded", String(opening));
+        if (opening) $("assistantInput").focus();
+      });
+      $("assistantClose").addEventListener("click", () => {
+        $("assistantPanel").hidden = true;
+        $("assistantToggle").setAttribute("aria-expanded", "false");
+      });
+      $("assistantSuggestions").addEventListener("click", (event) => {
+        const suggestion = event.target.closest(".assistant-suggestion");
+        if (!suggestion) return;
+        $("assistantInput").value = suggestion.textContent;
+        $("assistantForm").requestSubmit();
+      });
+      $("assistantForm").addEventListener("submit", (event) => {
+        event.preventDefault();
+        const question = $("assistantInput").value.trim();
+        if (!question) return;
+        addAssistantMessage(question, "user");
+        addAssistantMessage(assistantAnswer(question), "assistant");
+        $("assistantInput").value = "";
+        $("assistantInput").focus();
+      });
       $("exportLegacyButton").addEventListener("click", async () => {
         try {
           await downloadLegacyArchive();
@@ -2182,6 +2398,8 @@
           closeClientModal();
           $("notificationMenu").hidden = true;
           $("notificationButton").setAttribute("aria-expanded", "false");
+          $("assistantPanel").hidden = true;
+          $("assistantToggle").setAttribute("aria-expanded", "false");
         }
         if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k" && !$("officeApp").hidden) {
           event.preventDefault();
@@ -2277,6 +2495,11 @@
         setPage("تفاصيل القضية");
       });
       $("caseDetailView").addEventListener("click", (event) => {
+        const deleteButton = event.target.closest("[data-delete-case]");
+        if (deleteButton) {
+          requestCaseDeletion(deleteButton.dataset.deleteCase, deleteButton);
+          return;
+        }
         const editButton = event.target.closest("[data-edit-case]");
         if (editButton) {
           openModal(editButton.dataset.editCase);
@@ -2390,6 +2613,7 @@
             await writeDocument({
               id: receiptDocumentId,
               clientId: client.id,
+              caseId: caseItem.id,
               name: receipt.name,
               extension: (receipt.name.split(".").pop() || "").toLocaleLowerCase("en"),
               category: "إيصال",
@@ -2509,7 +2733,12 @@
           showToast("تعذر تصدير التقرير.");
         }
       });
-      $("casesBody").addEventListener("click", (event) => {
+      $("casesBody").addEventListener("click", async (event) => {
+        const deleteButton = event.target.closest("[data-delete-case]");
+        if (deleteButton) {
+          await requestCaseDeletion(deleteButton.dataset.deleteCase, deleteButton);
+          return;
+        }
         const button = event.target.closest("[data-edit-case]");
         if (button) openModal(button.dataset.editCase);
       });
@@ -2586,6 +2815,7 @@
             await writeDocument({
               id: `document-${crypto.randomUUID()}`,
               clientId: client.id,
+              caseId: record.id,
               name: file.name,
               extension,
               category,
