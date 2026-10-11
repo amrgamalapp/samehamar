@@ -576,12 +576,12 @@
         <button class="primary-button" id="loginButton" type="submit">دخول آمن</button>
         <div class="auth-progress" id="authProgress" role="status"></div>
       </form>
-      <div class="auth-note" id="loginNote">لا يوجد تسجيل حسابات من هذه الصفحة. أنشئ حساب المكتب من Firebase Authentication، وفعّل التحقق بخطوتين للحساب.</div>
+      <div class="auth-note" id="loginNote">استخدم بيانات الدخول المعتمدة للمكتب.</div>
       <button class="secondary-button install-app-button" id="authInstallButton" type="button" hidden>＋ تثبيت التطبيق على الهاتف</button>
       <p class="install-help" id="authInstallHelp" hidden>في Safari: اضغط «مشاركة» ثم اختر «إضافة إلى الشاشة الرئيسية».</p>
       <button class="secondary-button" id="exportLegacyButton" type="button" hidden>تنزيل نسخة من بيانات هذا الجهاز</button>
-      <div class="auth-note" id="legacyExportHint" hidden>إذا كانت بياناتك القديمة محفوظة عند فتح الموقع كملف على الجهاز، نزّل النسخة قبل الانتقال إلى رابط Firebase؛ تخزين الجهاز لا ينتقل تلقائيًا بين العناوين.</div>
-      <div class="app-attribution">تطوير <strong>المهندس عمرو جمال عوض</strong><br>منصة خاصة بالمحامي <strong>سامح عمار</strong> — جميع الحقوق محفوظة © 2026</div>
+      <div class="auth-note" id="legacyExportHint" hidden>إذا كانت بياناتك القديمة محفوظة على جهاز أو عنوان سابق، نزّل نسخة منها قبل الانتقال؛ تخزين المتصفح منفصل بين العناوين.</div>
+      <div class="app-attribution">المحامي <strong>سامح عمار</strong><br>تطوير <strong>المهندس عمرو جمال عوض</strong> — جميع الحقوق محفوظة © 2026</div>
     </div>
   </section>
   <div class="app" id="officeApp" hidden>
@@ -687,7 +687,7 @@
             </section>
           </aside>
         </div>
-        <div class="page-note">تُحمى ملفات المكتب بحساب Firebase، وتُحفظ في مشروعك السحابي وفق قواعد الوصول المنشورة. ملفات التصدير تحتوي بيانات سرية؛ احتفظ بها في مكان مشفّر واحذفها بعد الاستيراد.</div>
+        <div class="page-note">يقتصر الوصول إلى ملفات المكتب على الحساب المعتمد. ملفات التصدير تحتوي بيانات سرية؛ احتفظ بها في مكان مشفّر واحذفها بعد الاستيراد.</div>
         </div>
         <section class="clients-view" id="clientsView" hidden>
           <div class="clients-toolbar" id="clientsListView">
@@ -700,7 +700,7 @@
           <div class="client-grid" id="clientGrid"></div>
           <div class="empty-state" id="clientsEmpty" hidden><strong>لا يوجد عملاء مطابقون</strong>أضف عميلًا جديدًا أو جرّب البحث باسم مختلف.</div>
           <section class="client-profile" id="clientProfile" hidden></section>
-          <div class="page-note">المستندات متاحة بعد تسجيل الدخول فقط، وتُحفظ في Firebase Storage.</div>
+          <div class="page-note">المستندات متاحة بعد تسجيل الدخول فقط، وتُحفظ ضمن ملفات المكتب الخاصة.</div>
         </section>
         <section class="page-view" id="calendarView" hidden>
           <div class="panel">
@@ -777,7 +777,7 @@
           <section class="panel panel-spaced"><div class="panel-head"><div><div class="panel-title">معاينة المسودة</div><div class="panel-caption">راجع النص والبيانات وأكمل الصياغة القانونية قبل الاستخدام.</div></div></div><div class="template-preview" id="templatePreview"></div></section>
           <div class="page-note">القوالب مسودات تنظيمية وليست استشارة أو نموذجًا قانونيًا معتمدًا؛ راجعها وعدّلها وفق وقائع القضية والقانون المختص قبل إرسالها أو تقديمها.</div>
         </section>
-        <div class="app-attribution">تطوير <strong>المهندس عمرو جمال عوض</strong> · منصة خاصة بالمحامي <strong>سامح عمار</strong> · جميع الحقوق محفوظة © 2026</div>
+        <div class="app-attribution">المحامي <strong>سامح عمار</strong> · تطوير <strong>المهندس عمرو جمال عوض</strong> · جميع الحقوق محفوظة © 2026</div>
       </div>
     </main>
   </div>
@@ -1714,7 +1714,7 @@
             <div><div class="client-info-label">عدد القضايا</div><div class="client-info-value">${clientCases(client).length}</div></div>
             ${client.notes ? `<div class="client-notes"><div class="client-info-label">ملاحظات</div><div class="client-info-value">${escapeHtml(client.notes)}</div></div>` : ""}
           </div>
-          <div class="client-profile-section"><div class="client-section-head"><div><h3>مستندات العميل</h3><p>ارفع واحفظ مستندات العميل الخاصة بهذا الملف.</p></div><button class="primary-button upload-button" type="button" data-upload-client="${escapeHtml(client.id)}">＋ رفع مستند</button></div><input id="profileDocumentInput" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt" hidden><div class="document-list" id="documentList"><div class="empty-state">جارٍ تحميل المستندات...</div></div><p class="upload-note">الصيغ المدعومة: PDF وWord والصور وTXT · الحد الأقصى للملف 10 ميجابايت. تُخزّن المستندات في Firebase Storage الخاص بالمكتب.</p></div>
+          <div class="client-profile-section"><div class="client-section-head"><div><h3>مستندات العميل</h3><p>ارفع واحفظ مستندات العميل الخاصة بهذا الملف.</p></div><button class="primary-button upload-button" type="button" data-upload-client="${escapeHtml(client.id)}">＋ رفع مستند</button></div><input id="profileDocumentInput" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt" hidden><div class="document-list" id="documentList"><div class="empty-state">جارٍ تحميل المستندات...</div></div><p class="upload-note">الصيغ المدعومة: PDF وWord والصور وTXT · الحد الأقصى للملف 10 ميجابايت. تُخزّن المستندات ضمن ملفات المكتب الخاصة.</p></div>
           <div class="client-profile-section"><div class="client-section-head"><div><h3>قضايا العميل</h3><p>القضايا المسجلة باسم هذا العميل.</p></div></div><div id="clientCasesList"></div></div>`;
         const cases = clientCases(client);
         $("clientCasesList").innerHTML = cases.length ? cases.map((item) => `<div class="client-case-row"><span><strong>${escapeHtml(item.name)}</strong> <span class="case-id">${escapeHtml(item.id)}</span></span><span>${escapeHtml(statusLabels[item.status] || "جارية")} · ${formatDate(item.date)}</span></div>`).join("") : '<div class="empty-state">لا توجد قضايا مرتبطة بهذا العميل حتى الآن.</div>';
@@ -1725,7 +1725,7 @@
             <div class="document-row"><div class="document-icon">${escapeHtml(document.extension.toUpperCase())}</div><div class="document-copy"><div class="document-name">${escapeHtml(document.name)}</div><span class="document-category">${escapeHtml(document.category || "أخرى")}</span><div class="document-meta">${(document.size / 1024).toFixed(0)} كيلوبايت · أُضيف ${new Date(document.addedAt).toLocaleDateString("ar-EG")}</div></div><div class="document-actions"><button class="document-action" type="button" data-download-document="${escapeHtml(document.id)}">تنزيل</button><button class="document-action delete" type="button" data-delete-document="${escapeHtml(document.id)}">حذف</button></div></div>`).join("") : '<div class="empty-state">لا توجد مستندات مرفقة بهذا الملف بعد.</div>';
         } catch (error) {
           console.error("Failed to load client documents:", error);
-          $("documentList").innerHTML = '<div class="empty-state">تعذر تحميل المستندات. تحقق من اتصال Firebase وصلاحيات التخزين.</div>';
+          $("documentList").innerHTML = '<div class="empty-state">تعذر تحميل المستندات. تحقق من الاتصال وصلاحيات الوصول ثم أعد المحاولة.</div>';
         }
       }
       function render() {
@@ -1849,27 +1849,32 @@
           "auth/invalid-email": "صيغة البريد الإلكتروني غير صحيحة.",
           "auth/too-many-requests": "محاولات كثيرة. انتظر قليلًا ثم أعد المحاولة.",
           "auth/network-request-failed": "تعذر الاتصال. تحقق من الإنترنت ثم أعد المحاولة.",
-          "auth/unauthorized-domain": "عنوان الموقع غير مسموح له بتسجيل الدخول. أضف localhost إلى النطاقات المعتمدة في إعدادات Firebase Authentication.",
-          "auth/operation-not-allowed": "تسجيل الدخول بالبريد وكلمة المرور غير مفعّل. فعّل Email/Password من Firebase Authentication.",
-          "auth/user-disabled": "هذا الحساب موقوف. راجع المستخدم من Firebase Authentication.",
-          "auth/api-key-not-valid": "مفتاح Firebase غير صالح. راجع إعداد apiKey في firebase-config.js.",
-          "auth/configuration-not-found": "إعداد Firebase Authentication غير مكتمل. فعّل مزود Email/Password في المشروع."
+          "auth/unauthorized-domain": "تعذر تسجيل الدخول من هذا العنوان. تواصل مع مسؤول النظام.",
+          "auth/operation-not-allowed": "طريقة تسجيل الدخول غير مفعّلة لهذا الحساب. تواصل مع مسؤول النظام.",
+          "auth/user-disabled": "هذا الحساب موقوف. تواصل مع مسؤول النظام.",
+          "auth/api-key-not-valid": "تعذر الاتصال بخدمة تسجيل الدخول. تواصل مع مسؤول النظام.",
+          "auth/configuration-not-found": "خدمة تسجيل الدخول غير مهيأة. تواصل مع مسؤول النظام."
         };
-        return messages[error.code] || `تعذر إكمال تسجيل الدخول (${error.code || "خطأ غير معروف"}). تحقق من إعداد Firebase وحاول مجددًا.`;
+        return messages[error.code] || `تعذر إكمال تسجيل الدخول (${error.code || "خطأ غير معروف"}). تحقق من بيانات الدخول وحاول مجددًا.`;
       }
       function officeLoadErrorMessage(error) {
         const messages = {
-          "permission-denied": "تم تسجيل الدخول، لكن الحساب لا يملك صلاحية قراءة بيانات المكتب. انشر قواعد Firestore من المشروع ثم تحقق من الحساب.",
+          "permission-denied": "تم تسجيل الدخول، لكن الحساب لا يملك صلاحية الوصول إلى بيانات المكتب. تحقق من صلاحيات الحساب أو تواصل مع مسؤول النظام.",
           "unauthenticated": "انتهت جلسة تسجيل الدخول قبل تحميل بيانات المكتب. سجّل الدخول مجددًا.",
-          "unavailable": "تعذر الاتصال بـ Firestore. تحقق من الإنترنت وحالة خدمة Firebase ثم أعد المحاولة.",
-          "failed-precondition": "قاعدة Firestore غير مهيأة أو تتطلب إعدادًا إضافيًا. تحقق من إعداد قاعدة البيانات في Firebase Console.",
-          "not-found": "قاعدة بيانات Firestore غير موجودة في مشروع Firebase المحدد."
+          "unavailable": "تعذر الاتصال بخدمة بيانات المكتب. تحقق من الإنترنت ثم أعد المحاولة.",
+          "failed-precondition": "خدمة بيانات المكتب غير مهيأة. تواصل مع مسؤول النظام.",
+          "not-found": "تعذر العثور على بيانات المكتب المطلوبة. تواصل مع مسؤول النظام."
         };
-        return messages[error.code] || `تم تسجيل الدخول، لكن تعذر تحميل بيانات المكتب (${error.code || "خطأ غير معروف"}). تحقق من اتصال Firestore وقواعد الوصول ثم أعد المحاولة.`;
+        return messages[error.code] || `تم تسجيل الدخول، لكن تعذر تحميل بيانات المكتب (${error.code || "خطأ غير معروف"}). تحقق من الاتصال والصلاحيات ثم أعد المحاولة.`;
       }
       async function enableNotifications() {
         if (!("Notification" in window) || !("serviceWorker" in navigator) || !await firebase.messaging.isSupported()) {
           showToast("المتصفح لا يدعم إشعارات الويب على هذا الجهاز.");
+          return;
+        }
+        const vapidKey = window.FIREBASE_VAPID_KEY;
+        if (typeof vapidKey !== "string" || !vapidKey.trim() || vapidKey.includes("REPLACE_WITH")) {
+          showToast("إشعارات المكتب غير مهيأة بعد. أضف مفتاح Web Push العام لإعدادات الموقع ثم أعد المحاولة.");
           return;
         }
         try {
@@ -1880,7 +1885,7 @@
           }
           const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
           messaging = firebase.messaging();
-          const token = await messaging.getToken({ vapidKey: window.FIREBASE_VAPID_KEY, serviceWorkerRegistration: registration });
+          const token = await messaging.getToken({ vapidKey, serviceWorkerRegistration: registration });
           if (!token) throw new Error("تعذر إنشاء رمز إشعارات لهذا المتصفح.");
           await officeRef().collection("devices").doc(encodeURIComponent(token)).set({ token, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
           messaging.onMessage(() => {
@@ -1891,7 +1896,12 @@
           showToast("تم تفعيل تنبيهات الجلسات لهذا المتصفح.");
         } catch (error) {
           console.error("Failed to enable push notifications:", error);
-          showToast("تعذر تفعيل التنبيهات. تحقق من VAPID key وإعدادات Firebase.");
+          const messages = {
+            "messaging/invalid-vapid-key": "مفتاح Web Push غير صالح. تحقّق من المفتاح العام في إعدادات الموقع.",
+            "messaging/permission-blocked": "إذن الإشعارات محظور من المتصفح. اسمح به من إعدادات الموقع ثم أعد المحاولة.",
+            "messaging/token-subscribe-failed": "تعذر تسجيل هذا الجهاز للإشعارات. تحقق من اتصال الإنترنت وإعدادات الرسائل ثم أعد المحاولة."
+          };
+          showToast(messages[error.code] || "تعذر تفعيل التنبيهات. تحقق من اتصال الإنترنت وإعدادات الإشعارات ثم أعد المحاولة.");
         }
       }
       async function showOffice(user) {
@@ -1904,7 +1914,7 @@
           $("authProgress").textContent = "";
           $("enableNotificationsButton").textContent = "تفعيل التنبيهات";
           $("importLegacyButton").hidden = false;
-          document.querySelector(".page-note").textContent = "تُحمى ملفات المكتب بحساب Firebase، وتُحفظ في مشروعك السحابي وفق قواعد الوصول المنشورة.";
+          document.querySelector(".page-note").textContent = "تُحفظ ملفات المكتب في مساحة خاصة، ويقتصر الوصول عليها على الحساب المعتمد.";
           if (!initialized) {
             initialized = true;
             bindOfficeEvents();
@@ -1928,7 +1938,7 @@
         const config = window.FIREBASE_CONFIG;
         const requiredConfigKeys = ["apiKey", "authDomain", "projectId", "storageBucket", "messagingSenderId", "appId"];
         if (!config || requiredConfigKeys.some((key) => typeof config[key] !== "string" || !config[key].trim() || config[key].includes("REPLACE_WITH"))) {
-          console.error("Firebase is not configured. Update firebase-config.js before using the office portal.");
+          console.error("Office services are not configured.");
           $("authProgress").textContent = "الخدمة غير متاحة حاليًا. يُرجى التواصل مع مسؤول النظام.";
           $("loginButton").disabled = true;
           return;
@@ -1977,7 +1987,7 @@
           });
         } catch (error) {
           console.error("Firebase initialization failed:", error);
-          $("authProgress").textContent = "تعذر إعداد Firebase. راجع firebase-config.js وإعدادات المشروع.";
+          $("authProgress").textContent = "تعذر إعداد خدمات الدخول. يُرجى التواصل مع مسؤول النظام.";
           $("loginButton").disabled = true;
         }
       }
@@ -2312,7 +2322,7 @@
           await searchDocumentContents(query);
         } catch (error) {
           console.error("Document content search failed:", error);
-          $("documentSearchResults").innerHTML = '<div class="empty-state">تعذر إكمال البحث في المستندات. تحقق من اتصال Firebase وحاول مجددًا.</div>';
+          $("documentSearchResults").innerHTML = '<div class="empty-state">تعذر إكمال البحث في المستندات. تحقق من الاتصال وحاول مجددًا.</div>';
           showToast("تعذر البحث في محتوى المستندات.");
         } finally {
           button.disabled = false;
@@ -2505,7 +2515,7 @@
         } catch (error) {
           data.clients.shift();
           console.error("Failed to save client:", error);
-          showToast("تعذر حفظ العميل في Firebase. حاول مجددًا.");
+          showToast("تعذر حفظ العميل. تحقق من الاتصال وحاول مجددًا.");
           return;
         }
         closeClientModal();
@@ -2626,7 +2636,7 @@
         } catch (error) {
           data.tasks.shift();
           console.error("Failed to create task:", error);
-          showToast("تعذر حفظ المهمة في Firebase.");
+          showToast("تعذر حفظ المهمة. تحقق من الاتصال وحاول مجددًا.");
           return;
         }
         render();
