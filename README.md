@@ -32,32 +32,30 @@
 
 ## إعداد Firebase
 
-1. أنشئ مشروع Firebase وأضف تطبيق Web. انسخ إعداد Web app إلى `firebase-config.js`. إعدادات Web API ليست كلمات مرور، ولا تضع مفاتيح Service Account أو Admin SDK في ملفات الموقع.
-2. من Authentication، فعّل Email/Password وأنشئ حساب المكتب بنفسك. لا تضف واجهة إنشاء حساب. فعّل التحقق بخطوتين للحساب إن كان متاحًا في إعداد مشروعك.
-3. أنشئ Cloud Firestore وحدد منطقة البيانات بعناية قبل الإنشاء؛ لا يمكن تغيير موقع قاعدة البيانات بعد إنشائها. راجع متطلبات سرية بيانات العملاء ومكان استضافتها قبل الاختيار. أنشئ Firebase Storage وفعّل Firebase Cloud Messaging، ثم أنشئ مفتاح Web Push/VAPID وضعه في `firebase-config.js`.
+1. إعداد Web app لمشروع `samehamar` موجود بالفعل في `firebase-config.js`، والمشروع الافتراضي محدد في `.firebaserc`. إعدادات Web API ليست كلمات مرور، ولا تضع مفاتيح Service Account أو Admin SDK في ملفات الموقع.
+2. من Authentication، فعّل Email/Password وأنشئ حساب المكتب بنفسك. لا تضف واجهة إنشاء حساب. من Authentication → Settings → Authorized domains، أضف `localhost` للاختبار المحلي و`samehamar.web.app` للنشر إذا لم يظهرا تلقائيًا. فعّل التحقق بخطوتين للحساب إن كان متاحًا في إعداد مشروعك.
+3. أنشئ Cloud Firestore وحدد منطقة البيانات بعناية قبل الإنشاء؛ لا يمكن تغيير موقع قاعدة البيانات بعد إنشائها. راجع متطلبات سرية بيانات العملاء ومكان استضافتها قبل الاختيار. أنشئ Firebase Storage وفعّل Firebase Cloud Messaging. الإشعارات تحتاج مفتاح Web Push/VAPID مستقلًا؛ لا تفعّلها قبل وضعه في `firebase-config.js`.
 4. ثبّت Node.js 22 وFirebase CLI، ثم من PowerShell في مجلد المشروع شغّل:
 
    ```powershell
    npm install
-   npm install --prefix functions
    npx firebase login
-   npx firebase use --add
-   npx firebase deploy --only firestore:rules,storage,hosting,functions
+   npm run deploy
    ```
 
-   اختر مشروع Firebase نفسه عند ربطه. راجع القواعد المنشورة قبل إدخال مستندات حقيقية.
-5. خدمة التذكيرات المجدولة تحتاج Cloud Functions وCloud Scheduler، وقد تتطلب خطة Firebase المدفوعة (Blaze) ووسيلة دفع. المنطقة الزمنية الافتراضية `Africa/Cairo`. إذا احتجت تغييرها، أنشئ `functions/.env.<PROJECT_ID>` اعتمادًا على `functions/.env.example` قبل النشر. يعمل مجدول Functions في `europe-west1`.
+   يستخدم Firebase CLI المشروع `samehamar` المحدد في `.firebaserc`. راجع القواعد المنشورة قبل إدخال مستندات حقيقية.
+5. خدمة التذكيرات المجدولة اختيارية؛ لنشرها فقط، ثبّت تبعياتها باستخدام `npm install --prefix functions` ثم شغّل `npm run deploy:functions`. تحتاج Cloud Functions وCloud Scheduler، وقد تتطلب خطة Firebase المدفوعة (Blaze) ووسيلة دفع. المنطقة الزمنية الافتراضية `Africa/Cairo`. إذا احتجت تغييرها، أنشئ `functions/.env.<PROJECT_ID>` اعتمادًا على `functions/.env.example` قبل النشر. يعمل مجدول Functions في `europe-west1`.
 6. تنزيل المستندات يتم بمصادقة Firebase. بعد إنشاء Storage bucket، حدّث أسماء النطاقات في `storage.cors.json` ثم أضف إعداد CORS إلى bucket بواسطة Google Cloud CLI:
 
    ```powershell
-   gcloud storage buckets update gs://YOUR_STORAGE_BUCKET --cors-file=storage.cors.json
+   gcloud storage buckets update gs://samehamar.firebasestorage.app --cors-file=storage.cors.json
    ```
 
 7. سجّل الدخول من المتصفح، ثم اضغط «تفعيل التنبيهات» واسمح بإشعارات المتصفح. ترسل Cloud Function تذكيرًا عامًا قبل الجلسة أو مهمة المتابعة بيوم وقبلها بساعة؛ تفاصيل القضية والمهمة لا تظهر في الإشعار. يلزم نشر قواعد Firestore المحدثة التي تحمي مجموعتي `caseEvents` و`financialTransactions` بحساب المكتب نفسه، ثم نشر Functions وHosting.
 
 ## التشغيل المحلي
 
-لا يوجد دخول تجريبي أو تخزين محلي بديل؛ يلزم إعداد Firebase صالح وتسجيل الدخول بحساب المكتب في Firebase Authentication على كل من localhost والاستضافة. عند بقاء قيم `REPLACE_WITH_...`، يتوقف الدخول وتظهر رسالة بأن الخدمة غير متاحة. لا تنشر الموقع قبل استبدالها بإعداد Web app الخاص بمشروعك ونشر القواعد.
+لا يوجد دخول تجريبي أو تخزين محلي بديل؛ يلزم إعداد Firebase صالح وتسجيل الدخول بحساب المكتب في Firebase Authentication على كل من localhost والاستضافة. يلزم تفعيل Authentication وتهيئة Firestore وStorage ونشر القواعد قبل تشغيل بيانات المكتب.
 
 للاختبار قبل النشر، استخدم Firebase Emulator أو مشروع Firebase منفصلًا عن بيانات المكتب الفعلية، مع إعداد محلي لا يُرفع إلى الاستضافة.
 

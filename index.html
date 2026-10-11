@@ -1848,9 +1848,14 @@
           "auth/invalid-credential": "بيانات الدخول غير صحيحة.",
           "auth/invalid-email": "صيغة البريد الإلكتروني غير صحيحة.",
           "auth/too-many-requests": "محاولات كثيرة. انتظر قليلًا ثم أعد المحاولة.",
-          "auth/network-request-failed": "تعذر الاتصال. تحقق من الإنترنت."
+          "auth/network-request-failed": "تعذر الاتصال. تحقق من الإنترنت ثم أعد المحاولة.",
+          "auth/unauthorized-domain": "عنوان الموقع غير مسموح له بتسجيل الدخول. أضف localhost إلى النطاقات المعتمدة في إعدادات Firebase Authentication.",
+          "auth/operation-not-allowed": "تسجيل الدخول بالبريد وكلمة المرور غير مفعّل. فعّل Email/Password من Firebase Authentication.",
+          "auth/user-disabled": "هذا الحساب موقوف. راجع المستخدم من Firebase Authentication.",
+          "auth/api-key-not-valid": "مفتاح Firebase غير صالح. راجع إعداد apiKey في firebase-config.js.",
+          "auth/configuration-not-found": "إعداد Firebase Authentication غير مكتمل. فعّل مزود Email/Password في المشروع."
         };
-        return messages[error.code] || "تعذر تسجيل الدخول أو تحميل بيانات المكتب. تحقق من إعداد Firebase وحاول مجددًا.";
+        return messages[error.code] || `تعذر إكمال تسجيل الدخول (${error.code || "خطأ غير معروف"}). تحقق من إعداد Firebase وحاول مجددًا.`;
       }
       async function enableNotifications() {
         if (!("Notification" in window) || !("serviceWorker" in navigator) || !await firebase.messaging.isSupported()) {

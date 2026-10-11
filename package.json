@@ -2,7 +2,8 @@
   "name": "sameh-ammar-law-office",
   "private": true,
   "scripts": {
-    "deploy": "firebase deploy --only hosting,firestore:rules,storage,functions",
+    "deploy": "firebase deploy --only hosting,firestore:rules,storage",
+    "deploy:functions": "firebase deploy --only functions",
     "emulate": "firebase emulators:start --only hosting,auth,firestore,storage,functions"
   },
   "devDependencies": {

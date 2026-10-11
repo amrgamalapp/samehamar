@@ -1,9 +1,9 @@
 globalThis.FIREBASE_CONFIG = {
-  apiKey: "REPLACE_WITH_FIREBASE_WEB_API_KEY",
-  authDomain: "REPLACE_WITH_PROJECT_ID.firebaseapp.com",
-  projectId: "REPLACE_WITH_PROJECT_ID",
-  storageBucket: "REPLACE_WITH_PROJECT_ID.firebasestorage.app",
-  messagingSenderId: "REPLACE_WITH_MESSAGING_SENDER_ID",
-  appId: "REPLACE_WITH_FIREBASE_APP_ID"
+  apiKey: "AIzaSyDnIrArhwdctVaKBVnoNlpXAiWX8cHKWuQ",
+  authDomain: "samehamar.firebaseapp.com",
+  projectId: "samehamar",
+  storageBucket: "samehamar.firebasestorage.app",
+  messagingSenderId: "1089823002138",
+  appId: "1:1089823002138:web:6be1fb82d402e9e1478ba3"
 };
 globalThis.FIREBASE_VAPID_KEY = "REPLACE_WITH_WEB_PUSH_CERTIFICATE_KEY";

@@ -2,8 +2,8 @@
   {
     "origin": [
       "http://localhost:5000",
-      "https://REPLACE_WITH_PROJECT_ID.web.app",
-      "https://REPLACE_WITH_PROJECT_ID.firebaseapp.com"
+      "https://samehamar.web.app",
+      "https://samehamar.firebaseapp.com"
     ],
     "method": ["GET", "HEAD"],
     "responseHeader": ["Content-Type"],
