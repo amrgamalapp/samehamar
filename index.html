@@ -87,6 +87,7 @@
     html[data-theme="dark"] .modal,
     html[data-theme="dark"] .auth-card,
     html[data-theme="dark"] .icon-button,
+    html[data-theme="dark"] .notification-menu,
     html[data-theme="dark"] .filter-select,
     html[data-theme="dark"] .search,
     html[data-theme="dark"] .field input,
@@ -256,6 +257,7 @@
     .breadcrumbs { color: var(--muted); font-size: 12px; }
     .breadcrumbs strong { color: var(--ink); font-weight: 700; }
     .top-actions { display: flex; align-items: center; gap: 12px; }
+    .notification-wrap { position: relative; }
     .today { color: #7d8993; font-size: 11px; }
     .icon-button { width: 38px; height: 38px; border: 1px solid var(--line); background: var(--surface); border-radius: 10px; color: #526474; transition: .18s; }
     .icon-button:hover { border-color: #b6c6cc; background: var(--surface-muted); }
@@ -446,6 +448,23 @@
     .bell-button { position: relative; }
     .notification-dot { display: none; position: absolute; top: 6px; left: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--rose); border: 1px solid #fff; }
     .notification-dot.visible { display: block; }
+    .notification-menu {
+      position: absolute; top: calc(100% + 10px); right: 0; z-index: 4;
+      width: min(340px, calc(100vw - 24px)); max-height: min(70vh, 440px); overflow: auto;
+      padding: 12px; border: 1px solid var(--line); border-radius: 12px;
+      background: var(--surface); color: var(--ink); box-shadow: var(--shadow);
+    }
+    .notification-menu[hidden] { display: none; }
+    .notification-menu-head { margin: 0 0 8px; font-size: 13px; font-weight: 800; }
+    .notification-menu-empty { padding: 16px 8px; color: var(--muted); text-align: center; font-size: 12px; }
+    .notification-list { display: grid; gap: 6px; }
+    .notification-item {
+      display: grid; width: 100%; gap: 2px; padding: 9px 10px; text-align: right;
+      border: 1px solid var(--line); border-radius: 9px; background: var(--surface-soft); color: var(--ink);
+    }
+    .notification-item:hover { background: var(--table-hover); }
+    .notification-item strong { font-size: 12px; }
+    .notification-item span { color: var(--muted); font-size: 10px; }
     .reminder-settings { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 14px; margin: 13px 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
     .reminder-settings p { margin: 0; color: var(--muted); font-size: 10px; }
     .reminder-settings .primary-button { padding: 7px 10px; font-size: 10px; white-space: nowrap; }
@@ -621,7 +640,13 @@
         <div class="breadcrumbs">مكتب سامح عمار <span> / </span> <strong id="currentPage">الرئيسية</strong></div>
         <div class="top-actions">
           <span class="today" id="today"></span>
-          <button class="icon-button bell-button" id="notificationButton" aria-label="تفعيل تنبيهات الجلسات" title="تفعيل تنبيهات الجلسات">🔔<span class="notification-dot" id="notificationDot"></span></button>
+          <div class="notification-wrap">
+            <button class="icon-button bell-button" id="notificationButton" type="button" aria-label="عرض تنبيهات المكتب" aria-expanded="false" aria-controls="notificationMenu" title="عرض تنبيهات المكتب">🔔<span class="notification-dot" id="notificationDot"></span></button>
+            <section class="notification-menu" id="notificationMenu" aria-label="تنبيهات المكتب" hidden>
+              <h2 class="notification-menu-head">المواعيد والمهام القادمة</h2>
+              <div class="notification-list" id="notificationList"></div>
+            </section>
+          </div>
           <button class="icon-button install-app-button" id="officeInstallButton" type="button" aria-label="تثبيت التطبيق" title="تثبيت التطبيق" hidden>⬇</button>
           <button class="icon-button theme-toggle" type="button" aria-label="تفعيل الوضع الداكن" title="تفعيل الوضع الداكن">☾</button>
           <button class="icon-button" id="logoutButton" aria-label="تسجيل الخروج" title="تسجيل الخروج">↪</button>
@@ -865,6 +890,8 @@
       let activeUser = null;
       let initialized = false;
       let messaging = null;
+      let localReminderTimer = null;
+      const shownLocalReminders = new Set();
       let editingCaseId = null;
       let stagedCaseFiles = [];
       const calendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
@@ -1222,10 +1249,76 @@
         if (!item.date) return null;
         return new Date(`${item.date}T${item.time || "09:00"}:00`);
       }
-      function nextCaseReminders() {
+      function upcomingNotificationItems() {
         const now = Date.now();
-        return data.cases.filter((item) => item.status !== "closed" && caseDateTime(item)?.getTime() > now && caseDateTime(item).getTime() - now <= 24 * 60 * 60 * 1000)
-          .sort((a, b) => caseDateTime(a) - caseDateTime(b));
+        const weekAhead = now + 7 * 24 * 60 * 60 * 1000;
+        const cases = data.cases
+          .filter((item) => item.status !== "closed")
+          .map((item) => ({ type: "case", id: item.id, title: item.name, date: caseDateTime(item), time: item.time || "09:00" }))
+          .filter((item) => item.date && item.date.getTime() >= now && item.date.getTime() <= weekAhead);
+        const tasks = data.tasks
+          .filter((task) => !task.done && task.dueDate)
+          .map((task) => ({ type: "task", id: task.id, title: task.title, date: new Date(`${task.dueDate}T09:00:00`), time: "09:00" }))
+          .filter((item) => !Number.isNaN(item.date.getTime()) && item.date.getTime() >= now && item.date.getTime() <= weekAhead);
+        return [...cases, ...tasks].sort((a, b) => a.date - b.date).slice(0, 10);
+      }
+      function renderNotificationMenu() {
+        const items = upcomingNotificationItems();
+        $("notificationDot").classList.toggle("visible", items.some((item) => item.date.getTime() - Date.now() <= 24 * 60 * 60 * 1000));
+        $("notificationList").innerHTML = items.length
+          ? items.map((item) => `<button class="notification-item" type="button" data-notification-${item.type}="${escapeHtml(item.id)}"><strong>${item.type === "case" ? "جلسة" : "مهمة"}: ${escapeHtml(item.title)}</strong><span>${escapeHtml(item.date.toLocaleString("ar-EG", { dateStyle: "medium", timeStyle: "short" }))}</span></button>`).join("")
+          : '<div class="notification-menu-empty">لا توجد جلسات أو مهام خلال الأيام السبعة القادمة.</div>';
+      }
+      function checkLocalReminders() {
+        if (!activeUser || !("Notification" in window) || Notification.permission !== "granted") return;
+        const now = Date.now();
+        const scheduledItems = [
+          ...data.cases
+            .filter((item) => item.status !== "closed")
+            .map((item) => ({ type: "case", id: item.id, date: caseDateTime(item) })),
+          ...data.tasks
+            .filter((task) => !task.done && task.dueDate)
+            .map((task) => ({ type: "task", id: task.id, date: new Date(`${task.dueDate}T09:00:00`) }))
+        ];
+        for (const item of scheduledItems) {
+          if (!item.date || Number.isNaN(item.date.getTime()) || item.date.getTime() <= now) continue;
+          for (const leadMinutes of [24 * 60, 60]) {
+            const reminderAt = item.date.getTime() - leadMinutes * 60 * 1000;
+            const elapsed = now - reminderAt;
+            if (elapsed < 0 || elapsed >= 30 * 60 * 1000) continue;
+            const reminderId = `${item.type}:${item.id}:${item.date.getTime()}:${leadMinutes}`;
+            if (shownLocalReminders.has(reminderId)) continue;
+            shownLocalReminders.add(reminderId);
+            try {
+              const isTask = item.type === "task";
+              const notice = new Notification(isTask ? "تذكير بمهام المكتب" : "تذكير بمواعيد مكتبك", {
+                body: isTask ? "لديك مهمة متابعة مستحقة قريبًا. سجّل الدخول لمراجعتها." : "لديك جلسة قريبة. سجّل الدخول إلى بوابة المكتب لمراجعة التفاصيل.",
+                icon: new URL("./icon.svg", window.location.href).href,
+                tag: reminderId
+              });
+              notice.onclick = () => {
+                window.focus();
+                $("notificationMenu").hidden = true;
+                $("notificationButton").setAttribute("aria-expanded", "false");
+                if (isTask) {
+                  setPage("المهام");
+                } else {
+                  setPage("تفاصيل القضية");
+                  renderCaseDetail(item.id);
+                }
+                notice.close();
+              };
+            } catch (error) {
+              console.error("Failed to show local office reminder:", error);
+            }
+          }
+        }
+      }
+      function startLocalReminderChecks() {
+        if (localReminderTimer !== null) clearInterval(localReminderTimer);
+        if (!("Notification" in window) || Notification.permission !== "granted") return;
+        checkLocalReminders();
+        localReminderTimer = setInterval(checkLocalReminders, 60 * 1000);
       }
       function formatDate(value) {
         if (!value) return "—";
@@ -1658,7 +1751,7 @@
       function renderAppointments() {
         const appointments = upcomingCases().slice(0, 3);
         const list = $("appointmentsList");
-        $("notificationDot").classList.toggle("visible", nextCaseReminders().length > 0);
+        renderNotificationMenu();
         if (!appointments.length) {
           list.innerHTML = '<div class="empty-state">لا توجد جلسات خلال الأيام السبعة القادمة.</div>';
           return;
@@ -1887,6 +1980,7 @@
               : "لم يتم منح إذن الإشعارات. اسمح به من المتصفح ثم أعد المحاولة.");
             return;
           }
+          startLocalReminderChecks();
           stage = "تسجيل عامل خدمة الإشعارات";
           const serviceWorkerUrl = new URL("./firebase-messaging-sw.js", window.location.href);
           const registration = await navigator.serviceWorker.register(serviceWorkerUrl);
@@ -1933,6 +2027,7 @@
             initialized = true;
             bindOfficeEvents();
           }
+          startLocalReminderChecks();
         } catch (error) {
           activeUser = null;
           console.error("Failed to load office data:", error);
@@ -2033,7 +2128,30 @@
           showToast("تعذر تسجيل الخروج. أعد المحاولة.");
         }
       });
-      $("notificationButton").addEventListener("click", enableNotifications);
+      $("notificationButton").addEventListener("click", () => {
+        const menu = $("notificationMenu");
+        const opening = menu.hidden;
+        menu.hidden = !opening;
+        $("notificationButton").setAttribute("aria-expanded", String(opening));
+        if (opening) renderNotificationMenu();
+      });
+      $("notificationMenu").addEventListener("click", (event) => {
+        const item = event.target.closest("[data-notification-case], [data-notification-task]");
+        if (!item) return;
+        $("notificationMenu").hidden = true;
+        $("notificationButton").setAttribute("aria-expanded", "false");
+        if (item.dataset.notificationCase) {
+          setPage("تفاصيل القضية");
+          renderCaseDetail(item.dataset.notificationCase);
+        } else {
+          setPage("المهام");
+        }
+      });
+      document.addEventListener("click", (event) => {
+        if ($("notificationMenu").hidden || event.target.closest(".notification-wrap")) return;
+        $("notificationMenu").hidden = true;
+        $("notificationButton").setAttribute("aria-expanded", "false");
+      });
       $("enableNotificationsButton").addEventListener("click", enableNotifications);
       $("exportLegacyButton").addEventListener("click", async () => {
         try {
@@ -2062,6 +2180,8 @@
         if (event.key === "Escape") {
           closeModal();
           closeClientModal();
+          $("notificationMenu").hidden = true;
+          $("notificationButton").setAttribute("aria-expanded", "false");
         }
         if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k" && !$("officeApp").hidden) {
           event.preventDefault();
