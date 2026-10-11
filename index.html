@@ -610,7 +610,7 @@
         </div>
         <div class="profile">
           <div class="avatar">سع</div>
-          <div><div class="profile-name">المحامي سامح عمار</div><div class="profile-role">مدير المكتب</div></div>
+          <div><div class="profile-name">المستشار سامح عمار</div><div class="profile-role">مدير المكتب</div></div>
         </div>
       </div>
     </aside>
@@ -1868,25 +1868,32 @@
         return messages[error.code] || `تم تسجيل الدخول، لكن تعذر تحميل بيانات المكتب (${error.code || "خطأ غير معروف"}). تحقق من الاتصال والصلاحيات ثم أعد المحاولة.`;
       }
       async function enableNotifications() {
-        if (!("Notification" in window) || !("serviceWorker" in navigator) || !await firebase.messaging.isSupported()) {
-          showToast("المتصفح لا يدعم إشعارات الويب على هذا الجهاز.");
-          return;
-        }
         const vapidKey = window.FIREBASE_VAPID_KEY;
         if (typeof vapidKey !== "string" || !vapidKey.trim() || vapidKey.includes("REPLACE_WITH")) {
           showToast("إشعارات المكتب غير مهيأة بعد. أضف مفتاح Web Push العام لإعدادات الموقع ثم أعد المحاولة.");
           return;
         }
+        let stage = "فحص دعم المتصفح";
         try {
-          const permission = await Notification.requestPermission();
-          if (permission !== "granted") {
-            showToast("لم يتم السماح بالإشعارات. فعّلها من إعدادات المتصفح.");
+          if (!("Notification" in window) || !("serviceWorker" in navigator) || !await firebase.messaging.isSupported()) {
+            showToast("المتصفح أو عنوان الموقع الحالي لا يدعم الإشعارات. افتح الموقع عبر HTTPS في متصفح حديث.");
             return;
           }
+          stage = "طلب إذن الإشعارات";
+          const permission = await Notification.requestPermission();
+          if (permission !== "granted") {
+            showToast(permission === "denied"
+              ? "إذن الإشعارات محظور. غيّره إلى سماح من إعدادات الموقع في المتصفح."
+              : "لم يتم منح إذن الإشعارات. اسمح به من المتصفح ثم أعد المحاولة.");
+            return;
+          }
+          stage = "تسجيل عامل خدمة الإشعارات";
           const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
           messaging = firebase.messaging();
+          stage = "إنشاء رمز الإشعارات";
           const token = await messaging.getToken({ vapidKey, serviceWorkerRegistration: registration });
           if (!token) throw new Error("تعذر إنشاء رمز إشعارات لهذا المتصفح.");
+          stage = "حفظ الجهاز في حساب المكتب";
           await officeRef().collection("devices").doc(encodeURIComponent(token)).set({ token, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
           messaging.onMessage(() => {
             $("notificationDot").classList.add("visible");
@@ -1899,9 +1906,15 @@
           const messages = {
             "messaging/invalid-vapid-key": "مفتاح Web Push غير صالح. تحقّق من المفتاح العام في إعدادات الموقع.",
             "messaging/permission-blocked": "إذن الإشعارات محظور من المتصفح. اسمح به من إعدادات الموقع ثم أعد المحاولة.",
-            "messaging/token-subscribe-failed": "تعذر تسجيل هذا الجهاز للإشعارات. تحقق من اتصال الإنترنت وإعدادات الرسائل ثم أعد المحاولة."
+            "messaging/permission-default": "لم يتم منح إذن الإشعارات. اسمح به من المتصفح ثم أعد المحاولة.",
+            "messaging/failed-service-worker-registration": "تعذر تسجيل عامل الإشعارات. افتح الموقع عبر HTTPS وأعد تحميله.",
+            "messaging/unsupported-browser": "المتصفح أو عنوان الموقع الحالي لا يدعم الإشعارات. افتح الموقع عبر HTTPS في متصفح حديث.",
+            "messaging/token-subscribe-failed": "تعذر تسجيل الجهاز لدى خدمة الإشعارات. تحقق من اتصال الإنترنت وإعدادات الرسائل.",
+            "messaging/failed-registration": "تعذر تسجيل الجهاز لدى خدمة الإشعارات. تحقق من إعدادات الرسائل ومفتاح Web Push.",
+            "permission-denied": "تم إنشاء رمز الإشعارات، لكن الحساب لا يملك صلاحية حفظ الجهاز. تحقق من قواعد الوصول ثم أعد المحاولة.",
+            "firestore/permission-denied": "تم إنشاء رمز الإشعارات، لكن الحساب لا يملك صلاحية حفظ الجهاز. تحقق من قواعد الوصول ثم أعد المحاولة."
           };
-          showToast(messages[error.code] || "تعذر تفعيل التنبيهات. تحقق من اتصال الإنترنت وإعدادات الإشعارات ثم أعد المحاولة.");
+          showToast(messages[error.code] || `تعذر إكمال خطوة «${stage}»${error.code ? ` (${error.code})` : ""}. تحقق من الاتصال وإعدادات الإشعارات ثم أعد المحاولة.`);
         }
       }
       async function showOffice(user) {
