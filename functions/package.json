@@ -1,0 +1,13 @@
+{
+  "name": "law-office-reminders",
+  "private": true,
+  "engines": {
+    "node": "22"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^13.0.0",
+    "firebase-functions": "^6.0.0",
+    "luxon": "^3.6.0"
+  }
+}
