@@ -1857,6 +1857,16 @@
         };
         return messages[error.code] || `تعذر إكمال تسجيل الدخول (${error.code || "خطأ غير معروف"}). تحقق من إعداد Firebase وحاول مجددًا.`;
       }
+      function officeLoadErrorMessage(error) {
+        const messages = {
+          "permission-denied": "تم تسجيل الدخول، لكن الحساب لا يملك صلاحية قراءة بيانات المكتب. انشر قواعد Firestore من المشروع ثم تحقق من الحساب.",
+          "unauthenticated": "انتهت جلسة تسجيل الدخول قبل تحميل بيانات المكتب. سجّل الدخول مجددًا.",
+          "unavailable": "تعذر الاتصال بـ Firestore. تحقق من الإنترنت وحالة خدمة Firebase ثم أعد المحاولة.",
+          "failed-precondition": "قاعدة Firestore غير مهيأة أو تتطلب إعدادًا إضافيًا. تحقق من إعداد قاعدة البيانات في Firebase Console.",
+          "not-found": "قاعدة بيانات Firestore غير موجودة في مشروع Firebase المحدد."
+        };
+        return messages[error.code] || `تم تسجيل الدخول، لكن تعذر تحميل بيانات المكتب (${error.code || "خطأ غير معروف"}). تحقق من اتصال Firestore وقواعد الوصول ثم أعد المحاولة.`;
+      }
       async function enableNotifications() {
         if (!("Notification" in window) || !("serviceWorker" in navigator) || !await firebase.messaging.isSupported()) {
           showToast("المتصفح لا يدعم إشعارات الويب على هذا الجهاز.");
@@ -1902,9 +1912,16 @@
         } catch (error) {
           activeUser = null;
           console.error("Failed to load office data:", error);
-          $("authError").textContent = "تعذر الوصول إلى بيانات المكتب. لم تُعرض البيانات. تحقق من قواعد Firestore والاتصال ثم أعد المحاولة.";
+          $("loginError").textContent = officeLoadErrorMessage(error);
           $("authProgress").textContent = "";
-          if (auth) await auth.signOut();
+          if (auth) {
+            try {
+              await auth.signOut();
+            } catch (signOutError) {
+              console.error("Failed to sign out after office data load failure:", signOutError);
+              $("loginError").textContent += " تعذر إنهاء الجلسة تلقائيًا؛ سجّل الخروج يدويًا ثم أعد المحاولة.";
+            }
+          }
         }
       }
       function initializeFirebase() {
