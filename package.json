@@ -4,6 +4,7 @@
   "scripts": {
     "deploy": "firebase deploy --only hosting,firestore:rules,storage",
     "deploy:functions": "firebase deploy --only functions",
+    "configure-storage-cors": "gcloud storage buckets update gs://samehamar.firebasestorage.app --cors-file=storage.cors.json",
     "emulate": "firebase emulators:start --only hosting,auth,firestore,storage,functions"
   },
   "devDependencies": {

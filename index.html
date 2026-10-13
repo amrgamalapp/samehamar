@@ -843,11 +843,11 @@
   <aside class="assistant-widget" id="assistantWidget" aria-label="مساعد المكتب">
     <section class="assistant-panel" id="assistantPanel" aria-label="مساعد المكتب" hidden>
       <header class="assistant-head">
-        <div><strong>مساعد المكتب</strong><span>إرشادات المنصة ومعلومات قانونية عامة</span></div>
+        <div><strong>مساعد المكتب</strong><span>مساعد ذكي للمعلومات القانونية العامة</span></div>
         <button class="assistant-close" id="assistantClose" type="button" aria-label="إغلاق المساعد">×</button>
       </header>
       <div class="assistant-messages" id="assistantMessages" aria-live="polite">
-        <div class="assistant-message">أهلًا بك! أساعدك في استخدام المنصة وأجيب عن أسئلة عامة في مجالات قانونية متعددة. لا أطلع على بيانات ملفات المكتب، ولا أقدّم استشارة قانونية لحالة بعينها.</div>
+        <div class="assistant-message">أهلًا بك! أجيب عن الأسئلة القانونية العامة بمساعدة الذكاء الاصطناعي. يُرسل نص سؤالك فقط إلى مزود الخدمة الخارجي، ولا أطلع على ملفات المكتب. لا تكتب أسماء أو أرقام قضايا أو بيانات سرية. الإجابة للتوعية وليست استشارة قانونية.</div>
       </div>
       <div class="assistant-suggestions" id="assistantSuggestions">
         <button class="assistant-suggestion" type="button">كيف أضيف قضية؟</button>
@@ -858,7 +858,7 @@
         <button class="assistant-suggestion" type="button">دعوى نفقة الأطفال</button>
       </div>
       <form class="assistant-form" id="assistantForm">
-        <input id="assistantInput" type="text" maxlength="500" autocomplete="off" placeholder="اكتب سؤالك هنا..." aria-label="اكتب سؤالك للمساعد" required>
+        <input id="assistantInput" type="text" maxlength="1000" autocomplete="off" placeholder="اكتب سؤالًا عامًا دون بيانات سرية..." aria-label="اكتب سؤالك للمساعد" required>
         <button type="submit">إرسال</button>
       </form>
     </section>
@@ -906,10 +906,20 @@
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-messaging-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-functions-compat.js"></script>
   <script>
     (() => {
       const LEGACY_STORAGE_KEY = "sameh-ammar-law-office-v1";
       const MAX_DOCUMENT_SIZE = 10 * 1024 * 1024;
+      function getDocumentUploadErrorMessage(error) {
+        const code = error?.code || "";
+        if (code === "storage/unauthorized") return "رفضت صلاحيات Firebase Storage رفع الملف. تحقق من نشر storage.rules وأنك مسجل بالحساب الصحيح.";
+        if (code === "storage/bucket-not-found" || code === "storage/project-not-found") return "حاوية Firebase Storage غير موجودة أو غير مفعّلة لهذا المشروع.";
+        if (code === "storage/quota-exceeded") return "تم تجاوز حصة التخزين المتاحة في Firebase.";
+        if (code === "storage/canceled") return "تم إلغاء رفع الملف.";
+        if (code === "storage/unknown" || code === "storage/retry-limit-exceeded") return "تعذر الاتصال بمخزن Firebase. تحقق من إعدادات CORS لحاوية التخزين والاتصال ثم أعد المحاولة.";
+        return error?.message || "تعذر حفظ المستند. تحقق من إعدادات Firebase Storage والاتصال ثم أعد المحاولة.";
+      }
       const assistantKnowledge = [
         { keywords: ["إضافة قضية", "اضيف قضية", "قضية جديدة", "تسجيل قضية"], answer: "من الصفحة الرئيسية اضغط «إضافة قضية جديدة»، وأدخل اسم القضية والعميل والبيانات المطلوبة. يمكنك تحديد موعد الجلسة وإرفاق عدة مستندات قبل الضغط على «حفظ القضية»." },
         { keywords: ["حذف القضية", "احذف القضية", "امسح القضية", "حذف قضية", "احذف قضية", "مسح قضية"], answer: "من قائمة القضايا اضغط «حذف» بجوار القضية، أو افتح سجلها واختر «حذف القضية». سيطلب النظام تأكيدًا؛ الحذف يزيل القضية ومتابعاتها ومهامها وحركاتها المالية والمرفقات المرتبطة بها، ولا يمكن التراجع عنه." },
@@ -1025,6 +1035,7 @@
       let auth;
       let firestore;
       let storage;
+      let assistantFunctions;
       let activeUser = null;
       let initialized = false;
       let messaging = null;
@@ -1560,11 +1571,11 @@
           .replace(/\s+/g, " ")
           .trim();
       }
-      function assistantAnswer(question) {
+      function matchAssistantKnowledge(question, knowledge) {
         const query = normalizeAssistantText(question);
         let bestMatch = null;
         let bestScore = 0;
-        for (const entry of [...assistantKnowledge, ...legalAssistantKnowledge]) {
+        for (const entry of knowledge) {
           const matches = entry.keywords.filter((keyword) => query.includes(normalizeAssistantText(keyword)));
           const score = matches.reduce((longest, keyword) => Math.max(longest, normalizeAssistantText(keyword).length), 0);
           if (score > bestScore) {
@@ -1572,7 +1583,11 @@
             bestScore = score;
           }
         }
-        if (!bestMatch) return "لم أفهم سؤالك بالكامل. أستطيع المساعدة في استخدام المنصة أو تقديم معلومات قانونية عامة عن القضايا المدنية والجنائية والعمل والأسرة والعقود. اكتب سؤالك بطريقة أخرى، ولا تذكر بيانات شخصية.";
+        return bestMatch;
+      }
+      function assistantAnswer(question) {
+        const bestMatch = matchAssistantKnowledge(question, [...assistantKnowledge, ...legalAssistantKnowledge]);
+        if (!bestMatch) return null;
         return `${bestMatch.answer}${legalAssistantKnowledge.includes(bestMatch) ? legalInfoDisclaimer : ""}`;
       }
       function addAssistantMessage(message, sender) {
@@ -1581,6 +1596,15 @@
         item.textContent = message;
         $("assistantMessages").append(item);
         item.scrollIntoView({ block: "end" });
+        return item;
+      }
+      async function requestLegalAssistantAnswer(question) {
+        if (!assistantFunctions) throw new Error("خدمة المساعد غير مهيأة.");
+        const result = await assistantFunctions.httpsCallable("askLegalAssistant")({ question });
+        if (typeof result.data?.answer !== "string" || !result.data.answer.trim()) {
+          throw new Error("لم تصل إجابة صالحة من المساعد.");
+        }
+        return result.data.answer.trim();
       }
       function formatDate(value) {
         if (!value) return "—";
@@ -2325,6 +2349,11 @@
           auth = firebase.auth();
           firestore = firebase.firestore();
           storage = firebase.storage();
+          if (typeof firebase.app().functions === "function") {
+            assistantFunctions = firebase.app().functions("europe-west1");
+          } else {
+            console.warn("Firebase Functions SDK is unavailable; legal AI answers cannot be requested.");
+          }
           auth.onAuthStateChanged((user) => {
             if (user) {
               showOffice(user);
@@ -2437,14 +2466,28 @@
         $("assistantInput").value = suggestion.textContent;
         $("assistantForm").requestSubmit();
       });
-      $("assistantForm").addEventListener("submit", (event) => {
+      $("assistantForm").addEventListener("submit", async (event) => {
         event.preventDefault();
         const question = $("assistantInput").value.trim();
-        if (!question) return;
+        const submitButton = $("assistantForm").querySelector("button[type='submit']");
+        if (!question || submitButton.disabled) return;
         addAssistantMessage(question, "user");
-        addAssistantMessage(assistantAnswer(question), "assistant");
         $("assistantInput").value = "";
-        $("assistantInput").focus();
+        submitButton.disabled = true;
+        const pendingMessage = addAssistantMessage("جاري إعداد الإجابة...", "assistant");
+        try {
+          const localPlatformAnswer = matchAssistantKnowledge(question, assistantKnowledge)?.answer || null;
+          pendingMessage.textContent = localPlatformAnswer || `${await requestLegalAssistantAnswer(question)}${legalInfoDisclaimer}`;
+        } catch (error) {
+          console.error("Legal assistant request failed:", error);
+          const localAnswer = assistantAnswer(question);
+          pendingMessage.textContent = localAnswer
+            ? `تعذر الاتصال بالمساعد الذكي؛ هذه إجابة محلية عامة فقط:\n${localAnswer}`
+            : "تعذر الاتصال بالمساعد الذكي الآن. تحقق من الاتصال وحاول مرة أخرى، أو استشر محاميًا مختصًا. لم يتم إرسال ملفات المكتب.";
+        } finally {
+          submitButton.disabled = false;
+          if (!$("assistantPanel").hidden) $("assistantInput").focus();
+        }
       });
       $("exportLegacyButton").addEventListener("click", async () => {
         try {
@@ -2903,7 +2946,7 @@
             uploadedCount += 1;
           } catch (error) {
             console.error(`Failed to upload case attachment ${file.name}:`, error);
-            uploadFailures.push(file.name);
+            uploadFailures.push(`${file.name} (${getDocumentUploadErrorMessage(error)})`);
           }
         }
         closeModal();
@@ -3041,7 +3084,7 @@
           showToast("تم رفع المستند وحفظه في ملف العميل.");
         } catch (error) {
           console.error("Failed to upload client document:", error);
-          showToast("تعذر حفظ المستند. قد تكون مساحة التخزين غير كافية.");
+          showToast(getDocumentUploadErrorMessage(error));
         } finally {
           input.value = "";
         }

@@ -2,11 +2,28 @@
   {
     "origin": [
       "http://localhost:5000",
+      "http://127.0.0.1:5000",
       "https://samehamar.web.app",
       "https://samehamar.firebaseapp.com"
     ],
-    "method": ["GET", "HEAD"],
-    "responseHeader": ["Content-Type"],
+    "method": ["GET", "HEAD", "POST", "PUT", "DELETE"],
+    "allowedHeaders": [
+      "Authorization",
+      "Content-Type",
+      "x-firebase-storage-version",
+      "x-goog-resumable",
+      "x-goog-upload-command",
+      "x-goog-upload-protocol",
+      "x-goog-upload-offset",
+      "x-goog-upload-header-content-type",
+      "x-goog-upload-header-content-length"
+    ],
+    "responseHeader": [
+      "Content-Type",
+      "x-goog-resumable",
+      "x-goog-upload-status",
+      "x-goog-upload-url"
+    ],
     "maxAgeSeconds": 3600
   }
 ]
