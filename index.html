@@ -812,7 +812,7 @@
                 <div class="field"><label for="financeCase">القضية المرتبطة *</label><select id="financeCase" required></select></div>
                 <div class="field"><label for="financeDate">التاريخ *</label><input id="financeDate" type="date" required></div>
                 <div class="field full"><label for="financeDescription">البيان *</label><input id="financeDescription" maxlength="160" required placeholder="وصف الأتعاب أو الدفعة أو المصروف"></div>
-                <div class="field full"><label for="financeReceipt">إيصال (اختياري)</label><input id="financeReceipt" type="file" accept=".pdf,.jpg,.jpeg,.png,.txt"><small class="upload-note">الصيغ المدعومة PDF أو صورة أو TXT، حتى 10 ميجابايت. سيُرفق بملف عميل القضية.</small></div>
+                <div class="field full"><label for="financeReceipt">إيصال (اختياري)</label><input id="financeReceipt" type="file" accept=".pdf,.txt,.jpg,.jpeg,.png,.gif,.webp,.bmp,.tif,.tiff,.avif,.heic,.heif"><small class="upload-note">الصيغ المدعومة PDF أو صورة أو TXT، حتى 10 ميجابايت. سيُرفق بملف عميل القضية.</small></div>
               </div>
               <div class="form-actions"><button class="primary-button" id="saveFinanceButton" type="submit">حفظ الحركة</button></div>
             </form>
@@ -878,7 +878,7 @@
           <div class="field"><label for="caseTime">وقت الجلسة</label><input id="caseTime" name="time" type="time" value="09:00"></div>
           <div class="field full"><label for="courtName">المحكمة</label><input id="courtName" name="court" maxlength="60" placeholder="اسم المحكمة"></div>
           <div class="field full"><label for="caseNotes">ملاحظات</label><textarea id="caseNotes" name="notes" maxlength="500" placeholder="تفاصيل أو ملاحظات إضافية (اختياري)"></textarea></div>
-          <div class="field full"><label for="caseDocuments">مرفقات القضية</label><input id="caseDocuments" name="documents" type="file" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt"><small class="upload-note" id="caseDocumentsHint">اختر عدة ملفات، وحدد نوع كل مرفق قبل حفظ القضية ورفعها. الحد الأقصى 10 ميجابايت لكل ملف.</small><div class="attachment-queue" id="caseAttachmentQueue" aria-live="polite"></div></div>
+          <div class="field full"><label for="caseDocuments">مرفقات القضية</label><input id="caseDocuments" name="documents" type="file" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.webp,.bmp,.tif,.tiff,.avif,.heic,.heif,.txt"><small class="upload-note" id="caseDocumentsHint">اختر عدة ملفات، وحدد نوع كل مرفق قبل حفظ القضية ورفعها. الصور تُحفظ بصيغة Base64، والحد الأقصى 10 ميجابايت لكل ملف.</small><div class="attachment-queue" id="caseAttachmentQueue" aria-live="polite"></div></div>
         </div>
         <div class="form-actions"><button class="primary-button" id="saveCaseButton" type="submit">حفظ القضية</button><button class="secondary-button" type="button" id="cancelModal">إلغاء</button></div>
       </form>
@@ -911,6 +911,10 @@
     (() => {
       const LEGACY_STORAGE_KEY = "sameh-ammar-law-office-v1";
       const MAX_DOCUMENT_SIZE = 10 * 1024 * 1024;
+      const BASE64_IMAGE_CHUNK_LENGTH = 400000;
+      const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "webp", "bmp", "tif", "tiff", "avif", "heic", "heif"];
+      const DOCUMENT_EXTENSIONS = ["pdf", "doc", "docx", ...IMAGE_EXTENSIONS, "txt"];
+      const IMAGE_CONTENT_TYPES = { jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", gif: "image/gif", webp: "image/webp", bmp: "image/bmp", tif: "image/tiff", tiff: "image/tiff", avif: "image/avif", heic: "image/heic", heif: "image/heif" };
       function getDocumentUploadErrorMessage(error) {
         const code = error?.code || "";
         if (code === "storage/unauthorized") return "رفضت صلاحيات Firebase Storage رفع الملف. تحقق من نشر storage.rules وأنك مسجل بالحساب الصحيح.";
@@ -1069,6 +1073,81 @@
       async function saveFinancialTransaction(item) {
         await officeRef().collection("financialTransactions").doc(item.id).set(item);
       }
+      function isBase64Image(document) {
+        return IMAGE_EXTENSIONS.includes(String(document.extension || "").toLowerCase());
+      }
+      async function encodeBlobToBase64(blob, onProgress) {
+        const bytes = new Uint8Array(await blob.arrayBuffer());
+        const encodedParts = [];
+        const bytesPerPart = 30000;
+        for (let offset = 0; offset < bytes.length; offset += bytesPerPart) {
+          const part = bytes.subarray(offset, Math.min(offset + bytesPerPart, bytes.length));
+          encodedParts.push(btoa(String.fromCharCode(...part)));
+          if (onProgress && (offset === 0 || offset % (bytesPerPart * 32) === 0 || offset + part.length === bytes.length)) {
+            onProgress(bytes.length ? (offset + part.length) / bytes.length : 1);
+          }
+        }
+        return encodedParts.join("");
+      }
+      function base64ChunkRef(documentId, index) {
+        const chunkId = `${documentId}_${String(index).padStart(4, "0")}`;
+        return officeRef().collection("base64Documents").doc(chunkId);
+      }
+      async function saveBase64Image(document, file, onProgress) {
+        const encoded = await encodeBlobToBase64(file, (progress) => {
+          if (onProgress) onProgress(progress * 0.2);
+        });
+        const chunkCount = Math.ceil(encoded.length / BASE64_IMAGE_CHUNK_LENGTH);
+        try {
+          for (let start = 0; start < chunkCount; start += 20) {
+            const batch = firestore.batch();
+            const end = Math.min(start + 20, chunkCount);
+            for (let index = start; index < end; index += 1) {
+              const from = index * BASE64_IMAGE_CHUNK_LENGTH;
+              batch.set(base64ChunkRef(document.id, index), {
+                documentId: document.id,
+                index,
+                data: encoded.slice(from, from + BASE64_IMAGE_CHUNK_LENGTH)
+              });
+            }
+            await batch.commit();
+            if (onProgress) onProgress(0.2 + (end / chunkCount) * 0.8);
+          }
+          return chunkCount;
+        } catch (error) {
+          await deleteBase64ImageChunks(document.id, chunkCount).catch((cleanupError) => {
+            console.error("Failed to clean up incomplete Base64 image upload:", cleanupError);
+          });
+          throw error;
+        }
+      }
+      async function deleteBase64ImageChunks(documentId, knownCount) {
+        let references;
+        if (Number.isInteger(knownCount)) {
+          references = Array.from({ length: knownCount }, (_, index) => base64ChunkRef(documentId, index));
+        } else {
+          const snapshot = await officeRef().collection("base64Documents").where("documentId", "==", documentId).get();
+          references = snapshot.docs.map((item) => item.ref);
+        }
+        for (let start = 0; start < references.length; start += 450) {
+          const batch = firestore.batch();
+          references.slice(start, start + 450).forEach((reference) => batch.delete(reference));
+          await batch.commit();
+        }
+      }
+      async function getDocumentBlob(documentRecord) {
+        if (Number.isInteger(documentRecord.base64ChunkCount)) {
+          const references = Array.from({ length: documentRecord.base64ChunkCount }, (_, index) => base64ChunkRef(documentRecord.id, index));
+          const snapshots = await Promise.all(references.map((reference) => reference.get()));
+          if (snapshots.some((snapshot) => !snapshot.exists)) throw new Error("بعض أجزاء الصورة غير موجودة في Firestore.");
+          const encoded = snapshots.map((snapshot) => snapshot.data().data).join("");
+          const binary = atob(encoded);
+          const bytes = new Uint8Array(binary.length);
+          for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+          return new Blob([bytes], { type: documentRecord.contentType || IMAGE_CONTENT_TYPES[documentRecord.extension] || "application/octet-stream" });
+        }
+        return storage.ref(documentRecord.storagePath).getBlob();
+      }
       async function deleteCaseRecord(caseId) {
         const caseItem = data.cases.find((item) => item.id === caseId);
         if (!caseItem) throw new Error("لم تعد القضية موجودة.");
@@ -1077,7 +1156,7 @@
         const documents = data.clients.flatMap((client) => (client.documents || [])
           .filter((item) => item.caseId === caseId || receiptIds.has(item.id))
           .map((item) => ({ ...item, clientId: client.id })));
-        if (documents.some((item) => !item.storagePath)) throw new Error("تعذر تحديد مسار أحد مرفقات القضية بأمان. لم تُحذف القضية؛ تواصل مع مسؤول النظام.");
+        if (documents.some((item) => !item.storagePath && !Number.isInteger(item.base64ChunkCount))) throw new Error("تعذر تحديد مسار أحد مرفقات القضية بأمان. لم تُحذف القضية؛ تواصل مع مسؤول النظام.");
         const caseEvents = data.caseEvents.filter((item) => item.caseId === caseId);
         const caseTasks = data.tasks.filter((item) => item.caseId === caseId);
         const batchOperationCount = 1 + caseEvents.length + caseTransactions.length;
@@ -1099,7 +1178,9 @@
         }, { merge: true });
         caseEvents.forEach((item) => batch.delete(reference.collection("caseEvents").doc(item.id)));
         caseTransactions.forEach((item) => batch.delete(reference.collection("financialTransactions").doc(item.id)));
-        const fileDeletions = await Promise.allSettled(documents.map((item) => storage.ref(item.storagePath).delete()));
+        const fileDeletions = await Promise.allSettled(documents.map((item) => Number.isInteger(item.base64ChunkCount)
+          ? deleteBase64ImageChunks(item.id, item.base64ChunkCount)
+          : storage.ref(item.storagePath).delete()));
         const failedFileDeletions = fileDeletions.filter((result) => result.status === "rejected" && result.reason?.code !== "storage/object-not-found");
         if (failedFileDeletions.length) {
           failedFileDeletions.forEach((result) => console.error("Failed to delete case attachment from storage:", result.reason));
@@ -1314,7 +1395,7 @@
             if (!oldDocument.dataUrl) continue;
             const match = oldDocument.dataUrl.match(/^data:([^;,]*);base64,(.*)$/);
             if (!match) throw new Error(`تعذر قراءة المستند ${oldDocument.name}.`);
-            if (!["pdf", "doc", "docx", "jpg", "jpeg", "png", "txt"].includes(String(oldDocument.extension).toLowerCase())) {
+            if (!DOCUMENT_EXTENSIONS.includes(String(oldDocument.extension).toLowerCase())) {
               throw new Error(`صيغة المستند ${oldDocument.name} غير مدعومة.`);
             }
             const binary = atob(match[2]);
@@ -1429,7 +1510,7 @@
         }
         return Promise.resolve(null);
       }
-      async function writeDocument(document, operation, file) {
+      async function writeDocument(document, operation, file, onProgress) {
         const client = operation === "upload"
           ? data.clients.find((item) => item.id === document.clientId)
           : data.clients.find((item) => (item.documents || []).some((entry) => entry.id === document));
@@ -1446,13 +1527,30 @@
             client.documents.push(current);
             throw error;
           }
-          await storage.ref(current.storagePath).delete();
+          if (Number.isInteger(current.base64ChunkCount)) {
+            await deleteBase64ImageChunks(current.id, current.base64ChunkCount);
+          } else {
+            await storage.ref(current.storagePath).delete();
+          }
           return;
         }
         if (!file || file.size > MAX_DOCUMENT_SIZE) throw new Error("الملف غير صالح أو يتجاوز الحد المسموح.");
-        const storagePath = `offices/${activeUser.uid}/clients/${client.id}/${document.id}/${encodeURIComponent(file.name)}`;
-        const contentTypes = { pdf: "application/pdf", doc: "application/msword", docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", txt: "text/plain" };
-        await storage.ref(storagePath).put(file, { contentType: contentTypes[document.extension] });
+        let storagePath = null;
+        let base64ChunkCount = null;
+        const contentType = file.type || IMAGE_CONTENT_TYPES[document.extension] || "application/octet-stream";
+        if (isBase64Image(document)) {
+          base64ChunkCount = await saveBase64Image(document, file, onProgress);
+        } else {
+          storagePath = `offices/${activeUser.uid}/clients/${client.id}/${document.id}/${encodeURIComponent(file.name)}`;
+          const contentTypes = { pdf: "application/pdf", doc: "application/msword", docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", txt: "text/plain" };
+          const uploadTask = storage.ref(storagePath).put(file, { contentType: contentTypes[document.extension] });
+          if (onProgress) {
+            uploadTask.on("state_changed", (snapshot) => {
+              onProgress(snapshot.totalBytes ? snapshot.bytesTransferred / snapshot.totalBytes : 0);
+            });
+          }
+          await uploadTask;
+        }
         const metadata = {
           id: document.id,
           name: document.name,
@@ -1460,7 +1558,8 @@
           category: document.category || "أخرى",
           size: file.size,
           addedAt: document.addedAt || Date.now(),
-          storagePath,
+          contentType,
+          ...(storagePath ? { storagePath } : { base64ChunkCount }),
           ...(document.caseId ? { caseId: document.caseId } : {})
         };
         documentTextCache.delete(document.id);
@@ -1469,7 +1568,11 @@
           await saveData();
         } catch (error) {
           client.documents.shift();
-          await storage.ref(storagePath).delete();
+          if (Number.isInteger(base64ChunkCount)) {
+            await deleteBase64ImageChunks(document.id, base64ChunkCount);
+          } else {
+            await storage.ref(storagePath).delete();
+          }
           throw error;
         }
       }
@@ -1943,12 +2046,12 @@
         link.click();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
       }
-      function showToast(message) {
+      function showToast(message, duration = 2600) {
         const toast = $("toast");
         toast.textContent = message;
         toast.classList.add("show");
         clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
+        toastTimer = duration > 0 ? setTimeout(() => toast.classList.remove("show"), duration) : null;
       }
       let installPromptEvent = null;
       const installButtons = document.querySelectorAll(".install-app-button");
@@ -2061,6 +2164,34 @@
           return `<label class="task"><input type="checkbox" data-task="${escapeHtml(task.id)}" ${task.done ? "checked" : ""} aria-label="إنجاز ${escapeHtml(task.title)}"><span class="task-copy ${task.done ? "done" : ""}">${escapeHtml(task.title)}<span class="task-date">${escapeHtml(taskDetails)}</span></span></label>`;
         }).join("");
       }
+      async function deleteClientRecord(clientId) {
+        const client = data.clients.find((item) => item.id === clientId);
+        if (!client) throw new Error("ملف العميل غير موجود.");
+        const linkedCases = clientCases(client);
+        const caseIds = new Set(linkedCases.map((item) => item.id));
+        const linkedTransactions = data.transactions.filter((item) => item.clientId === client.id || caseIds.has(item.caseId));
+        if (linkedCases.length || linkedTransactions.length) {
+          throw new Error(`لا يمكن حذف العميل لوجود ${linkedCases.length} قضية و${linkedTransactions.length} حركة مالية مرتبطة به. احذف القضايا أو انقلها أولًا.`);
+        }
+        const documents = (client.documents || []).map((item) => ({ ...item }));
+        if (documents.some((item) => !item.storagePath && !Number.isInteger(item.base64ChunkCount))) {
+          throw new Error("تعذر تحديد مكان أحد مستندات العميل بأمان، لذلك لم يُحذف الملف.");
+        }
+        const previousClients = data.clients;
+        data.clients = data.clients.filter((item) => item.id !== client.id);
+        try {
+          await saveData();
+        } catch (error) {
+          data.clients = previousClients;
+          throw new Error("تعذر حفظ حذف العميل. تحقق من الاتصال ثم أعد المحاولة.");
+        }
+        const deletions = await Promise.allSettled(documents.map((item) => Number.isInteger(item.base64ChunkCount)
+          ? deleteBase64ImageChunks(item.id, item.base64ChunkCount)
+          : storage.ref(item.storagePath).delete()));
+        const failedDeletions = deletions.filter((result) => result.status === "rejected" && result.reason?.code !== "storage/object-not-found");
+        documents.forEach((item) => documentTextCache.delete(item.id));
+        return { deletedDocuments: documents.length, failedDeletions: failedDeletions.length };
+      }
       function renderClients() {
         const query = $("clientSearch").value.trim().toLocaleLowerCase("ar");
         const clients = data.clients.filter((client) => `${client.name} ${client.phone} ${client.email}`.toLocaleLowerCase("ar").includes(query));
@@ -2086,14 +2217,14 @@
         $("clientsEmpty").hidden = true;
         const profile = $("clientProfile");
         profile.hidden = false;
-        profile.innerHTML = `<div class="client-profile-head"><div class="client-avatar">${escapeHtml(client.name.trim().slice(0, 1))}</div><div><h2>${escapeHtml(client.name)}</h2><p>ملف العميل · أُضيف إلى سجل المكتب</p></div><button class="secondary-button client-back" type="button" data-client-back>العودة للعملاء</button></div>
+        profile.innerHTML = `<div class="client-profile-head"><div class="client-avatar">${escapeHtml(client.name.trim().slice(0, 1))}</div><div><h2>${escapeHtml(client.name)}</h2><p>ملف العميل · أُضيف إلى سجل المكتب</p></div><button class="danger-button" type="button" data-delete-client="${escapeHtml(client.id)}">حذف العميل</button><button class="secondary-button client-back" type="button" data-client-back>العودة للعملاء</button></div>
           <div class="client-info-grid">
             <div><div class="client-info-label">رقم الهاتف</div><div class="client-info-value">${escapeHtml(client.phone || "غير مسجل")}</div></div>
             <div><div class="client-info-label">البريد الإلكتروني</div><div class="client-info-value">${escapeHtml(client.email || "غير مسجل")}</div></div>
             <div><div class="client-info-label">عدد القضايا</div><div class="client-info-value">${clientCases(client).length}</div></div>
             ${client.notes ? `<div class="client-notes"><div class="client-info-label">ملاحظات</div><div class="client-info-value">${escapeHtml(client.notes)}</div></div>` : ""}
           </div>
-          <div class="client-profile-section"><div class="client-section-head"><div><h3>مستندات العميل</h3><p>ارفع واحفظ مستندات العميل الخاصة بهذا الملف.</p></div><button class="primary-button upload-button" type="button" data-upload-client="${escapeHtml(client.id)}">＋ رفع مستند</button></div><input id="profileDocumentInput" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt" hidden><div class="document-list" id="documentList"><div class="empty-state">جارٍ تحميل المستندات...</div></div><p class="upload-note">الصيغ المدعومة: PDF وWord والصور وTXT · الحد الأقصى للملف 10 ميجابايت. تُخزّن المستندات ضمن ملفات المكتب الخاصة.</p></div>
+          <div class="client-profile-section"><div class="client-section-head"><div><h3>مستندات العميل</h3><p>ارفع واحفظ مستندات العميل الخاصة بهذا الملف.</p></div><button class="primary-button upload-button" type="button" data-upload-client="${escapeHtml(client.id)}">＋ رفع مستند</button></div><input id="profileDocumentInput" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.webp,.bmp,.tif,.tiff,.avif,.heic,.heif,.txt" hidden><div class="document-list" id="documentList"><div class="empty-state">جارٍ تحميل المستندات...</div></div><p class="upload-note">الصيغ المدعومة: PDF وWord والصور وTXT · الصور تُحفظ بصيغة Base64 · الحد الأقصى للملف 10 ميجابايت.</p></div>
           <div class="client-profile-section"><div class="client-section-head"><div><h3>قضايا العميل</h3><p>القضايا المسجلة باسم هذا العميل.</p></div></div><div id="clientCasesList"></div></div>`;
         const cases = clientCases(client);
         $("clientCasesList").innerHTML = cases.length ? cases.map((item) => `<div class="client-case-row"><span><strong>${escapeHtml(item.name)}</strong> <span class="case-id">${escapeHtml(item.id)}</span></span><span>${escapeHtml(statusLabels[item.status] || "جارية")} · ${formatDate(item.date)}</span></div>`).join("") : '<div class="empty-state">لا توجد قضايا مرتبطة بهذا العميل حتى الآن.</div>';
@@ -2349,6 +2480,7 @@
           auth = firebase.auth();
           firestore = firebase.firestore();
           storage = firebase.storage();
+          storage.setMaxUploadRetryTime(60000);
           if (typeof firebase.app().functions === "function") {
             assistantFunctions = firebase.app().functions("europe-west1");
           } else {
@@ -2531,7 +2663,7 @@
       $("statusFilter").addEventListener("change", renderCases);
       $("caseDocuments").addEventListener("change", (event) => {
         const selectedFiles = Array.from(event.currentTarget.files || []);
-        const allowedExtensions = ["pdf", "doc", "docx", "jpg", "jpeg", "png", "txt"];
+        const allowedExtensions = DOCUMENT_EXTENSIONS;
         const rejectedFiles = [];
         selectedFiles.forEach((file) => {
           const extension = (file.name.split(".").pop() || "").toLocaleLowerCase("en");
@@ -2775,7 +2907,7 @@
         try {
           const receipt = await getDocument(button.dataset.financeReceipt);
           if (!receipt) throw new Error("الإيصال غير موجود.");
-          const blob = await storage.ref(receipt.storagePath).getBlob();
+          const blob = await getDocumentBlob(receipt);
           const url = URL.createObjectURL(blob);
           const link = document.createElement("a");
           link.href = url;
@@ -2869,7 +3001,7 @@
         event.preventDefault();
         const submitButton = $("saveCaseButton");
         const attachments = [...stagedCaseFiles];
-        const allowedExtensions = ["pdf", "doc", "docx", "jpg", "jpeg", "png", "txt"];
+        const allowedExtensions = DOCUMENT_EXTENSIONS;
         const invalidFile = attachments.find(({ file }) => {
           const extension = (file.name.split(".").pop() || "").toLocaleLowerCase("en");
           return !allowedExtensions.includes(extension) || file.size > MAX_DOCUMENT_SIZE;
@@ -2942,7 +3074,9 @@
               size: file.size,
               addedAt: Date.now(),
               contentType: file.type
-            }, "upload", file);
+            }, "upload", file, (progress) => {
+              showToast(`جارٍ رفع ${file.name}: ${Math.floor(progress * 100)}٪`, 0);
+            });
             uploadedCount += 1;
           } catch (error) {
             console.error(`Failed to upload case attachment ${file.name}:`, error);
@@ -3019,6 +3153,25 @@
           renderClientProfile();
           return;
         }
+        const deleteClientButton = event.target.closest("[data-delete-client]");
+        if (deleteClientButton) {
+          const client = data.clients.find((item) => item.id === deleteClientButton.dataset.deleteClient);
+          if (!client || !window.confirm(`هل تريد حذف ملف العميل «${client.name}» ومستنداته نهائيًا؟ لا يمكن التراجع عن هذا الإجراء.`)) return;
+          deleteClientButton.disabled = true;
+          try {
+            const result = await deleteClientRecord(client.id);
+            selectedClientId = null;
+            await renderClientProfile();
+            showToast(result.failedDeletions
+              ? `تم حذف ملف العميل، لكن تعذر حذف محتوى ${result.failedDeletions} مستندات.`
+              : "تم حذف ملف العميل ومستنداته.");
+          } catch (error) {
+            console.error("Failed to delete client:", error);
+            showToast(error.message || "تعذر حذف العميل.");
+            deleteClientButton.disabled = false;
+          }
+          return;
+        }
         const uploadButton = event.target.closest("[data-upload-client]");
         if (uploadButton) {
           $("profileDocumentInput").click();
@@ -3029,7 +3182,7 @@
           try {
             const document = await getDocument(downloadButton.dataset.downloadDocument);
             if (!document) throw new Error("المستند غير موجود.");
-            const blob = await storage.ref(document.storagePath).getBlob();
+            const blob = await getDocumentBlob(document);
             const url = URL.createObjectURL(blob);
             const link = window.document.createElement("a");
             link.href = url;
@@ -3058,7 +3211,7 @@
         const input = event.target;
         if (input.id !== "profileDocumentInput" || !input.files.length) return;
         const file = input.files[0];
-        const allowedExtensions = ["pdf", "doc", "docx", "jpg", "jpeg", "png", "txt"];
+        const allowedExtensions = DOCUMENT_EXTENSIONS;
         const extension = (file.name.split(".").pop() || "").toLocaleLowerCase("en");
         if (!allowedExtensions.includes(extension)) {
           showToast("نوع الملف غير مدعوم.");
@@ -3079,7 +3232,9 @@
             size: file.size,
             addedAt: Date.now(),
             contentType: file.type
-          }, "upload", file);
+          }, "upload", file, (progress) => {
+            showToast(`جارٍ رفع المستند: ${Math.floor(progress * 100)}٪`, 0);
+          });
           await renderClientProfile();
           showToast("تم رفع المستند وحفظه في ملف العميل.");
         } catch (error) {
